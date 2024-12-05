@@ -1,0 +1,68 @@
+# Java related
+*.class
+*.jar
+*.war
+*.ear
+*.logs
+*.log
+target/
+.gradle/
+build/
+
+# Maven
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+
+# CDK / TypeScript related
+*.js
+!jest.config.js
+*.d.ts
+node_modules/
+cdk.out/
+.cdk.staging/
+dist/
+coverage/
+.nyc_output/
+
+# IDE - IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# IDE - VSCode
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Test reports
+test-report/
+reports/
+surefire-reports/
+
+# AWS SAM
+.aws-sam/
+
+# Misc
+*.swp
+*.swo
+.settings/
+.project
+.classpath
+.factorypath 
