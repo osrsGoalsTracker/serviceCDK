@@ -1,11 +1,15 @@
 {
-  "name": "osrs-xp-goals-cdk",
+  "name": "osrs-goals-cdk",
   "version": "1.0.0",
-  "description": "CDK Infrastructure for OSRS XP Goals",
+  "description": "CDK Infrastructure for OSRS Goals",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "engines": {
+    "node": "^22.0.0"
+  },
   "scripts": {
-    "build": "tsc",
+    "clean": "rm -rf dist && find . -name '*.js' ! -path './node_modules/*' ! -path './dist/*' -delete && find . -name '*.d.ts' ! -path './node_modules/*' ! -path './dist/*' -delete",
+    "build": "npm run clean && tsc",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk"
@@ -18,8 +22,8 @@
     "typescript": "~5.2.2"
   },
   "dependencies": {
-    "aws-cdk-lib": "2.96.2",
-    "constructs": "^10.0.0",
+    "aws-cdk-lib": "^2.173.1",
+    "constructs": "^10.4.2",
     "source-map-support": "^0.5.21"
   }
-} 
+}
