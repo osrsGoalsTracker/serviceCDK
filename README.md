@@ -1,50 +1,69 @@
-# OSRS XP Goals Service
+# OSRS Goals CDK Infrastructure
 
-A Java-based AWS Lambda service for tracking Old School RuneScape player XP goals.
-
-## Project Structure
-
-The project consists of two main components:
-
-1. `service/` - Java service with Lambda handlers and business logic
-2. `cdk/` - AWS CDK infrastructure code in TypeScript
+AWS CDK infrastructure code for the OSRS Goals application, which tracks Old School RuneScape player goals.
 
 ## Prerequisites
 
-- Java 21
-- Node.js 18+
+- Node.js v22 (use nvm to install: `nvm install 22 && nvm use 22`)
 - AWS CLI configured with appropriate credentials
-- Maven
-- AWS CDK CLI
+- AWS CDK CLI (`npm install -g aws-cdk`)
 
-## Building the Service
+## Setup
 
-### Build the Java Service
-
+1. Install dependencies:
 ```bash
-cd service
-mvn clean package
+npm install
 ```
 
-### Build the CDK Infrastructure
-
+2. Build the project:
 ```bash
-cd cdk
-npm install
 npm run build
 ```
 
+## Configuration
+
+The infrastructure can be deployed to different stages (environments):
+
+- `prod`: Production environment
+- `beta`: Beta testing environment
+- `developer`: Personal development environment
+
+### Developer Setup
+
+For local development, you'll need to update the developer account ID in `src/config.ts`. Find the `developer` stage configuration and replace the accountId with your AWS account ID:
+
+```typescript
+developer: {
+    accountId: 'YOUR_AWS_ACCOUNT_ID', // Replace with your AWS account ID
+    region: 'us-west-2'
+}
+```
+
+> **Note**: The default developer account ID (084375548651) is just an example. Each developer should use their own AWS account ID.
+
 ## Deployment
 
-The service can be deployed to different stages (e.g., alpha, beta) using the CDK.
+To deploy the infrastructure to a specific stage:
 
-1. First, update the account IDs in `cdk/src/config.ts` with your AWS account IDs.
-
-2. Deploy to a specific stage:
-
+1. Make sure you have AWS credentials configured for the target account
+2. Build the project:
 ```bash
-cd cdk
-cdk deploy --context stage=alpha
+npm run build
+```
+
+3. Deploy to your chosen stage:
+```bash
+cdk deploy --app 'npx ts-node src/app.ts' --context stage=STAGE_NAME
+```
+
+Replace `STAGE_NAME` with one of:
+- `prod` (Production)
+- `beta` (Beta testing)
+- `developer` (Local development)
+
+Example for deploying to your developer environment:
+```bash
+cdk deploy --app 'npx ts-node src/app.ts' --context stage=developer
 ```
 
 ## API Endpoints
@@ -62,8 +81,6 @@ Retrieves player information.
 ```json
 {
     "rsn": "string",
-    "totalXp": number,
-    "combatLevel": number,
     "lastUpdated": "string"
 }
 ```
@@ -74,31 +91,28 @@ Creates or updates player information.
 
 **Parameters:**
 - `rsn` (path parameter) - RuneScape username
-- Request body:
-```json
-{
-    "totalXp": number,
-    "combatLevel": number
-}
-```
 
-## Testing
+## Useful Commands
 
-### Run Java Tests
+- `npm run build` - Compile TypeScript to JavaScript
+- `npm run watch` - Watch for changes and compile
+- `npm run test` - Perform the jest unit tests
+- `cdk diff` - Compare deployed stack with current state
+- `cdk synth` - Emits the synthesized CloudFormation template
 
-```bash
-cd service
-mvn test
-```
+## Security Notes
 
-## Development
+- Never commit your personal AWS account ID to the repository
+- Always verify the target account ID before deploying to production
+- Use AWS credentials with appropriate permissions for your stage
 
-The service follows a layered architecture:
+## Infrastructure Components
 
-1. Lambda Layer (`lambda/`) - Handles AWS Lambda requests
-2. Data Layer (`data/`) - Business logic and data coordination
-3. Persistence Layer (`persistence/`) - Data storage operations
-4. External Layer (`external/`) - External service interactions
+The infrastructure includes:
+- DynamoDB table for player data
+- Lambda functions for API handlers
+- API Gateway for RESTful endpoints
+- Appropriate IAM roles and permissions
 
 ## Contributing
 
