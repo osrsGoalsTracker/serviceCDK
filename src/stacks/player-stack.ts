@@ -21,7 +21,7 @@ export class PlayerStack extends cdk.Stack {
         const getPlayerFunction = new lambda.Function(this, 'GetPlayerFunction', {
             runtime: lambda.Runtime.JAVA_21,
             handler: 'com.osrs.goals.lambda.GetPlayerHandler::handleRequest',
-            code: lambda.Code.fromAsset('../service/target/goals-service-1.0-SNAPSHOT.jar'),
+            code: lambda.Code.fromAsset('../service/build/libs/goals-service-1.0-SNAPSHOT-all.jar'),
             memorySize: 512,
             timeout: cdk.Duration.seconds(30),
             environment: {
@@ -32,7 +32,7 @@ export class PlayerStack extends cdk.Stack {
         const setPlayerFunction = new lambda.Function(this, 'SetPlayerFunction', {
             runtime: lambda.Runtime.JAVA_21,
             handler: 'com.osrs.goals.lambda.SetPlayerHandler::handleRequest',
-            code: lambda.Code.fromAsset('../service/target/goals-service-1.0-SNAPSHOT.jar'),
+            code: lambda.Code.fromAsset('../service/build/libs/goals-service-1.0-SNAPSHOT-all.jar'),
             memorySize: 512,
             timeout: cdk.Duration.seconds(30),
             environment: {
