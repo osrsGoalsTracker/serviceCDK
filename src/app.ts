@@ -1,19 +1,18 @@
 import * as cdk from 'aws-cdk-lib';
 import { PlayerStack } from './stacks/player-stack';
-import { getStageConfig } from './config';
 
 const app = new cdk.App();
+const stage = app.node.tryGetContext('stage');
 
-// Get stage from context or default to 'alpha'
-const stage = app.node.tryGetContext('stage') || 'alpha';
-const stageConfig = getStageConfig(stage);
+if (!stage) {
+    throw new Error('Please provide a stage using --context stage=<stage>');
+}
 
-new PlayerStack(app, `PlayerStack-${stage}`, stageConfig, {
-    env: {
-        account: stageConfig.accountId,
-        region: stageConfig.region
-    },
-    description: `Player service stack for ${stage} stage`
+new PlayerStack(app, `PlayerStack-${stage}`, {
+    description: `OSRS Goals Player service stack - ${stage}`,
+    tags: {
+        Stage: stage
+    }
 });
 
 app.synth(); 
