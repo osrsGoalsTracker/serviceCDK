@@ -3,15 +3,16 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import { Construct } from 'constructs';
-import { StageConfig } from '../config';
 
 export class PlayerStack extends cdk.Stack {
-    constructor(scope: Construct, id: string, stageConfig: StageConfig, props?: cdk.StackProps) {
+    constructor(scope: Construct, id: string, props?: cdk.StackProps) {
         super(scope, id, props);
+
+        const stage = this.node.tryGetContext('stage');
 
         // DynamoDB table
         const playerTable = new dynamodb.Table(this, 'PlayerTable', {
-            tableName: 'Player',
+            tableName: `Player-${stage}`,
             partitionKey: { name: 'rsn', type: dynamodb.AttributeType.STRING },
             billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
             removalPolicy: cdk.RemovalPolicy.RETAIN
@@ -25,7 +26,7 @@ export class PlayerStack extends cdk.Stack {
             memorySize: 512,
             timeout: cdk.Duration.seconds(30),
             environment: {
-                STAGE: stageConfig.stage
+                STAGE: stage
             }
         });
 
@@ -36,7 +37,7 @@ export class PlayerStack extends cdk.Stack {
             memorySize: 512,
             timeout: cdk.Duration.seconds(30),
             environment: {
-                STAGE: stageConfig.stage
+                STAGE: stage
             }
         });
 
@@ -46,9 +47,9 @@ export class PlayerStack extends cdk.Stack {
 
         // API Gateway
         const api = new apigateway.RestApi(this, 'PlayerApi', {
-            restApiName: `player-api-${stageConfig.stage}`,
+            restApiName: `player-api-${stage}`,
             deployOptions: {
-                stageName: stageConfig.stage
+                stageName: stage
             }
         });
 

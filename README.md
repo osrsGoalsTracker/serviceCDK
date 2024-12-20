@@ -20,30 +20,9 @@ npm install
 npm run build
 ```
 
-## Configuration
-
-The infrastructure can be deployed to different stages (environments):
-
-- `prod`: Production environment
-- `beta`: Beta testing environment
-- `developer`: Personal development environment
-
-### Developer Setup
-
-For local development, you'll need to update the developer account ID in `src/config.ts`. Find the `developer` stage configuration and replace the accountId with your AWS account ID:
-
-```typescript
-developer: {
-    accountId: 'YOUR_AWS_ACCOUNT_ID', // Replace with your AWS account ID
-    region: 'us-west-2'
-}
-```
-
-> **Note**: The default developer account ID (084375548651) is just an example. Each developer should use their own AWS account ID.
-
 ## Deployment
 
-To deploy the infrastructure to a specific stage:
+To deploy the infrastructure to your AWS account:
 
 1. Make sure you have AWS credentials configured for the target account
 2. Build the project:
@@ -51,20 +30,19 @@ To deploy the infrastructure to a specific stage:
 npm run build
 ```
 
-3. Deploy to your chosen stage:
+3. Deploy the stack:
 ```bash
-cdk deploy --app 'npx ts-node src/app.ts' --context stage=STAGE_NAME
+cdk deploy --context stage=dev --profile <your aws-profile>
 ```
 
-Replace `STAGE_NAME` with one of:
-- `prod` (Production)
-- `beta` (Beta testing)
-- `developer` (Local development)
+The `stage` parameter is required and will be used to name all resources. The profile is the AWS profile to use for the deployment. To find your profile name, run `aws configure list-profiles`. If you don't have a profile, you can create one with `aws configure`.
 
-Example for deploying to your developer environment:
-```bash
-cdk deploy --app 'npx ts-node src/app.ts' --context stage=developer
-```
+This will create resources with names like:
+- `PlayerStack-dev` or `PlayerStack-prod` (CloudFormation stack)
+- `Player-dev` or `Player-prod` (DynamoDB table)
+- `player-api-dev` or `player-api-prod` (API Gateway)
+
+This naming convention helps you easily identify which environment each resource belongs to when viewing them in the AWS Console.
 
 ## API Endpoints
 
@@ -97,14 +75,15 @@ Creates or updates player information.
 - `npm run build` - Compile TypeScript to JavaScript
 - `npm run watch` - Watch for changes and compile
 - `npm run test` - Perform the jest unit tests
-- `cdk diff` - Compare deployed stack with current state
-- `cdk synth` - Emits the synthesized CloudFormation template
+- `cdk diff --context stage=<stage-name>` - Compare deployed stack with current state
+- `cdk synth --context stage=<stage-name>` - Emits the synthesized CloudFormation template
 
 ## Security Notes
 
-- Never commit your personal AWS account ID to the repository
-- Always verify the target account ID before deploying to production
-- Use AWS credentials with appropriate permissions for your stage
+- Never commit AWS credentials to the repository
+- Use appropriate AWS profiles for different environments
+- Use AWS credentials with appropriate permissions for your target account
+- Always verify the stage parameter matches your intended environment before deployment
 
 ## Infrastructure Components
 
