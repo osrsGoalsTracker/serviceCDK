@@ -19,7 +19,7 @@
     "strictPropertyInitialization": false,
     "typeRoots": ["./node_modules/@types"],
     "outDir": "dist",
-    "rootDir": "src"
+    "rootDir": "lib"
   },
   "exclude": ["node_modules", "cdk.out", "dist", "**/*.js", "**/*.d.ts"]
 } 

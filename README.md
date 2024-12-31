@@ -8,7 +8,39 @@ AWS CDK infrastructure code for the OSRS Goals application, which tracks Old Sch
 - AWS CLI configured with appropriate credentials
 - AWS CDK CLI (`npm install -g aws-cdk`)
 
-## Setup
+## AWS Setup
+
+1. Install AWS CLI:
+```bash
+# macOS
+brew install awscli
+
+# Windows
+choco install awscli
+
+# Linux
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+```
+
+2. Configure AWS credentials:
+```bash
+# Configure your AWS credentials
+aws configure
+
+# When prompted, enter:
+# - AWS Access Key ID
+# - AWS Secret Access Key
+# - Default region (e.g., us-west-2)
+# - Default output format (json)
+```
+
+You can get your AWS credentials from:
+1. AWS Console → IAM → Users → Your User → Security credentials → Create access key
+2. Save both the Access Key ID and Secret Access Key
+
+## Installation
 
 1. Install dependencies:
 ```bash
@@ -22,35 +54,35 @@ npm run build
 
 ## Deployment
 
-To deploy the infrastructure to your AWS account:
+Deploy the infrastructure using:
 
-1. Make sure you have AWS credentials configured for the target account
-2. Build the project:
 ```bash
-npm run build
+# Deploy to development
+cdk deploy "*" --context stage=dev --context account=123456789012 [--context region=us-west-2]
+
+# Deploy to production
+cdk deploy "*" --context stage=prod --context account=987654321098 [--context region=us-west-2]
 ```
 
-3. Deploy the stack:
-```bash
-cdk deploy --context stage=dev --profile <your aws-profile>
-```
+Required parameters:
+- `stage`: Environment name (e.g., dev, prod)
+- `account`: AWS account ID where you want to deploy
 
-The `stage` parameter is required and will be used to name all resources. The profile is the AWS profile to use for the deployment. To find your profile name, run `aws configure list-profiles`. If you don't have a profile, you can create one with `aws configure`.
+Optional parameters:
+- `region`: AWS region (defaults to us-west-2)
 
-This will create resources with names like:
-- `PlayerStack-dev` or `PlayerStack-prod` (CloudFormation stack)
-- `Player-dev` or `Player-prod` (DynamoDB table)
-- `player-api-dev` or `player-api-prod` (API Gateway)
-
-This naming convention helps you easily identify which environment each resource belongs to when viewing them in the AWS Console.
+The deployment will create:
+- API Gateway with base path `/players/{rsn}`
+- Lambda function for retrieving player stats
+- All resources will be tagged with the specified stage
 
 ## API Endpoints
 
-The service exposes two API endpoints:
+The service exposes:
 
-### GET /players/{rsn}
+### GET /players/{rsn}/stats
 
-Retrieves player information.
+Retrieves player's OSRS stats.
 
 **Parameters:**
 - `rsn` (path parameter) - RuneScape username
@@ -59,38 +91,36 @@ Retrieves player information.
 ```json
 {
     "rsn": "string",
-    "lastUpdated": "string"
+    "stats": {
+        "overall": {
+            "rank": number,
+            "level": number,
+            "xp": number
+        }
+    }
 }
 ```
 
-### POST /players/{rsn}
-
-Creates or updates player information.
-
-**Parameters:**
-- `rsn` (path parameter) - RuneScape username
-
 ## Useful Commands
 
-- `npm run build` - Compile TypeScript to JavaScript
-- `npm run watch` - Watch for changes and compile
-- `npm run test` - Perform the jest unit tests
-- `cdk diff --context stage=<stage-name>` - Compare deployed stack with current state
-- `cdk synth --context stage=<stage-name>` - Emits the synthesized CloudFormation template
+- `npm run build` - Compile TypeScript
+- `npm run watch` - Watch for changes
+- `npm run test` - Run tests
+- `cdk diff --context stage=dev --context account=<account-id>` - Show deployment changes
+- `cdk synth --context stage=dev --context account=<account-id>` - Emit CloudFormation template
 
 ## Security Notes
 
 - Never commit AWS credentials to the repository
-- Use appropriate AWS profiles for different environments
-- Use AWS credentials with appropriate permissions for your target account
-- Always verify the stage parameter matches your intended environment before deployment
+- Use appropriate AWS credentials for each environment
+- Ensure you're deploying to the correct AWS account
+- Always verify the stage and account before deployment
 
 ## Infrastructure Components
 
 The infrastructure includes:
-- DynamoDB table for player data
-- Lambda functions for API handlers
-- API Gateway for RESTful endpoints
+- API Gateway for REST endpoints
+- Lambda functions for business logic
 - Appropriate IAM roles and permissions
 
 ## Contributing
