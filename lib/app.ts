@@ -25,30 +25,37 @@ const env: cdk.Environment = {
     region
 };
 
-// Create API Gateway stack
-const apiGatewayStack = new ApiGatewayStack(app, 'ApiGatewayStack', {
-    env,
-    description: `OSRS Goals API Gateway - ${stage}`,
-    stackName: `osrs-goals-api-gateway-${stage}`,
-    tags: {
-        Stage: stage,
-        Project: 'OSRS Goals'
-    }
-});
-
-// Create GetPlayerStats Lambda stack
-new GetPlayerStatsStack(app, 'GetPlayerStatsStack', {
+// Create GetPlayerStats Lambda stack first (independent)
+const getPlayerStatsStack = new GetPlayerStatsStack(app, 'GetPlayerStatsStack', {
     env,
     description: `OSRS Goals GetPlayerStats Lambda - ${stage}`,
     stackName: `osrs-goals-get-player-stats-${stage}`,
-    apiGatewayStack,
     tags: {
         Stage: stage,
         Project: 'OSRS Goals'
     }
 });
 
-// Create Goal DynamoDB table stack
+// Create API Gateway stack (depends on Lambda)
+new ApiGatewayStack(app, 'ApiGatewayStack', {
+    env,
+    description: `OSRS Goals API Gateway - ${stage}`,
+    stackName: `osrs-goals-api-gateway-${stage}`,
+    routes: [
+        {
+            httpMethod: 'GET',
+            resourcePath: ['players', '{rsn}', 'stats'],
+            lambda: getPlayerStatsStack.getPlayerStatsFunction,
+            operationName: 'GetPlayerStats'
+        }
+    ],
+    tags: {
+        Stage: stage,
+        Project: 'OSRS Goals'
+    }
+});
+
+// Create Goal DynamoDB table stack (independent)
 new GoalTableStack(app, 'GoalTableStack', {
     env,
     description: `OSRS Goals DynamoDB Table - ${stage}`,
