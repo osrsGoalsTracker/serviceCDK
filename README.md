@@ -74,6 +74,7 @@ Optional parameters:
 The deployment will create:
 - API Gateway with base path `/players/{rsn}`
 - Lambda function for retrieving player stats
+- DynamoDB Goal table for storing player goals and progress
 - All resources will be tagged with the specified stage
 
 ## API Endpoints
@@ -121,6 +122,12 @@ Retrieves player's OSRS stats.
 The infrastructure includes:
 - API Gateway for REST endpoints
 - Lambda functions for business logic
+- DynamoDB tables:
+  - Goals table (pk/sk) for storing player goals and progress tracking
+    - Partition key (pk): String
+    - Sort key (sk): String
+    - Pay-per-request billing
+    - Point-in-time recovery enabled
 - Appropriate IAM roles and permissions
 
 ## Contributing

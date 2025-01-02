@@ -1,6 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { ApiGatewayStack } from './stacks/api-gateway-stack';
 import { GetPlayerStatsStack } from './stacks/get-player-stats-stack';
+import { GoalTableStack } from './stacks/goal-table-stack';
 
 const app = new cdk.App();
 
@@ -41,6 +42,17 @@ new GetPlayerStatsStack(app, 'GetPlayerStatsStack', {
     description: `OSRS Goals GetPlayerStats Lambda - ${stage}`,
     stackName: `osrs-goals-get-player-stats-${stage}`,
     apiGatewayStack,
+    tags: {
+        Stage: stage,
+        Project: 'OSRS Goals'
+    }
+});
+
+// Create Goal DynamoDB table stack
+new GoalTableStack(app, 'GoalTableStack', {
+    env,
+    description: `OSRS Goals DynamoDB Table - ${stage}`,
+    stackName: `osrs-goals-goal-table-${stage}`,
     tags: {
         Stage: stage,
         Project: 'OSRS Goals'
