@@ -164,8 +164,12 @@ The infrastructure includes:
   - Player statistics endpoints
 - Lambda functions for business logic:
   - CreateUser function for user registration (with DynamoDB write access)
+    - Name format: `CreateUser-${stackName}`
   - GetUser function for retrieving user information (with DynamoDB read access)
+    - Name format: `GetUser-${stackName}`
   - GetPlayerStats function for retrieving player statistics
+    - Name format: `GetPlayerStats-${stackName}`
+  - Stack names include the stage (e.g., `-dev` or `-prod` suffix)
 - DynamoDB tables:
   - Goals table (pk/sk) for storing player goals and progress tracking
     - Partition key (pk): String

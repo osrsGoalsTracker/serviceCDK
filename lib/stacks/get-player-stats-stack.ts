@@ -14,7 +14,8 @@ export class GetPlayerStatsStack extends cdk.Stack {
             handler: 'com.osrs.goals.service.GetPlayerStatsHandler::handleRequest',
             code: lambda.Code.fromAsset('../service/build/libs/getPlayerStats-lambda-1.0-SNAPSHOT.jar'),
             memorySize: 512,
-            timeout: cdk.Duration.seconds(30)
+            timeout: cdk.Duration.seconds(30),
+            functionName: `GetPlayerStats-${props?.stackName}`
         });
     }
 } 

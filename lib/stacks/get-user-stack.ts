@@ -23,7 +23,8 @@ export class GetUserStack extends cdk.Stack {
             timeout: cdk.Duration.seconds(30),
             environment: {
                 GOAL_TABLE_NAME: props.goalTableStack.goalTable.tableName
-            }
+            },
+            functionName: `GetUser-${props.stackName}`
         });
 
         // Grant DynamoDB permissions
