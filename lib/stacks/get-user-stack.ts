@@ -4,21 +4,21 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
 import { GoalTableStack } from './goal-table-stack';
 
-interface CreateUserStackProps extends cdk.StackProps {
+interface GetUserStackProps extends cdk.StackProps {
     goalTableStack: GoalTableStack;
 }
 
-export class CreateUserStack extends cdk.Stack {
-    public readonly createUserFunction: lambda.Function;
+export class GetUserStack extends cdk.Stack {
+    public readonly getUserFunction: lambda.Function;
 
-    constructor(scope: Construct, id: string, props: CreateUserStackProps) {
+    constructor(scope: Construct, id: string, props: GetUserStackProps) {
         super(scope, id, props);
 
         // Create Lambda function
-        this.createUserFunction = new lambda.Function(this, 'CreateUserFunction', {
+        this.getUserFunction = new lambda.Function(this, 'GetUserFunction', {
             runtime: lambda.Runtime.JAVA_21,
-            handler: 'com.osrs.goals.service.CreateUserHandler::handleRequest',
-            code: lambda.Code.fromAsset('../service/build/libs/createUser-lambda-1.0-SNAPSHOT.jar'),
+            handler: 'com.osrs.goals.service.GetUserHandler::handleRequest',
+            code: lambda.Code.fromAsset('../service/build/libs/getUser-lambda-1.0-SNAPSHOT.jar'),
             memorySize: 512,
             timeout: cdk.Duration.seconds(30),
             environment: {
@@ -27,6 +27,6 @@ export class CreateUserStack extends cdk.Stack {
         });
 
         // Grant DynamoDB permissions
-        props.goalTableStack.goalTable.grantReadWriteData(this.createUserFunction);
+        props.goalTableStack.goalTable.grantReadData(this.getUserFunction);
     }
 } 

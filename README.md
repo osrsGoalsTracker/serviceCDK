@@ -57,11 +57,12 @@ npm run build
 Deploy the infrastructure using:
 
 ```bash
-# Deploy to development
+# Deploy all stacks
 cdk deploy "*" --context stage=dev --context account=123456789012 [--context region=us-west-2]
 
-# Deploy to production
-cdk deploy "*" --context stage=prod --context account=987654321098 [--context region=us-west-2]
+# Deploy specific stacks (note: dependencies will be deployed automatically)
+cdk deploy GetUserStack --context stage=dev --context account=123456789012 [--context region=us-west-2]
+cdk deploy CreateUserStack --context stage=dev --context account=123456789012 [--context region=us-west-2]
 ```
 
 Required parameters:
@@ -71,13 +72,12 @@ Required parameters:
 Optional parameters:
 - `region`: AWS region (defaults to us-west-2)
 
-The deployment will create:
-- API Gateway with endpoints for user management and player stats
-- Lambda functions:
-  - CreateUser for user registration
-  - GetPlayerStats for retrieving player statistics
-- DynamoDB Goal table for storing player goals and progress
-- All resources will be tagged with the specified stage
+Stack Dependencies:
+- `GoalTableStack` - Independent
+- `GetPlayerStatsStack` - Independent
+- `CreateUserStack` - Depends on GoalTableStack
+- `GetUserStack` - Depends on GoalTableStack
+- `ApiGatewayStack` - Depends on all Lambda stacks
 
 ## API Endpoints
 
@@ -93,6 +93,21 @@ Creates a new user account.
     "email": "string"
 }
 ```
+
+**Response:**
+```json
+{
+    "userId": "string",
+    "email": "string"
+}
+```
+
+### GET /users/{userId}
+
+Retrieves user information.
+
+**Parameters:**
+- `userId` (path parameter) - The user's unique identifier
 
 **Response:**
 ```json
@@ -143,10 +158,13 @@ Retrieves player's OSRS stats for a specific user's registered player.
 
 The infrastructure includes:
 - API Gateway for REST endpoints:
-  - User management endpoints
+  - User management endpoints:
+    - Create user (with DynamoDB write access)
+    - Get user information (with DynamoDB read access)
   - Player statistics endpoints
 - Lambda functions for business logic:
-  - CreateUser function for user registration
+  - CreateUser function for user registration (with DynamoDB write access)
+  - GetUser function for retrieving user information (with DynamoDB read access)
   - GetPlayerStats function for retrieving player statistics
 - DynamoDB tables:
   - Goals table (pk/sk) for storing player goals and progress tracking
@@ -154,6 +172,7 @@ The infrastructure includes:
     - Sort key (sk): String
     - Pay-per-request billing
     - Point-in-time recovery enabled
+    - Used by CreateUser and GetUser functions
 - Appropriate IAM roles and permissions
 
 ## Contributing
