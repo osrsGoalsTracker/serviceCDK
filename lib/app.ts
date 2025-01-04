@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import { ApiGatewayStack } from './stacks/api-gateway-stack';
 import { GetPlayerStatsStack } from './stacks/get-player-stats-stack';
 import { GoalTableStack } from './stacks/goal-table-stack';
+import { CreateUserStack } from './stacks/create-user-stack';
 
 const app = new cdk.App();
 
@@ -25,7 +26,7 @@ const env: cdk.Environment = {
     region
 };
 
-// Create GetPlayerStats Lambda stack first (independent)
+// Create GetPlayerStats Lambda stack (independent)
 const getPlayerStatsStack = new GetPlayerStatsStack(app, 'GetPlayerStatsStack', {
     env,
     description: `OSRS Goals GetPlayerStats Lambda - ${stage}`,
@@ -36,15 +37,32 @@ const getPlayerStatsStack = new GetPlayerStatsStack(app, 'GetPlayerStatsStack', 
     }
 });
 
-// Create API Gateway stack (depends on Lambda)
+// Create CreateUser Lambda stack (independent)
+const createUserStack = new CreateUserStack(app, 'CreateUserStack', {
+    env,
+    description: `OSRS Goals CreateUser Lambda - ${stage}`,
+    stackName: `osrs-goals-create-user-${stage}`,
+    tags: {
+        Stage: stage,
+        Project: 'OSRS Goals'
+    }
+});
+
+// Create API Gateway stack (depends on Lambdas)
 new ApiGatewayStack(app, 'ApiGatewayStack', {
     env,
     description: `OSRS Goals API Gateway - ${stage}`,
     stackName: `osrs-goals-api-gateway-${stage}`,
     routes: [
         {
+            httpMethod: 'POST',
+            resourcePath: ['users'],
+            lambda: createUserStack.createUserFunction,
+            operationName: 'CreateUser'
+        },
+        {
             httpMethod: 'GET',
-            resourcePath: ['players', '{rsn}', 'stats'],
+            resourcePath: ['users', '{userId}', 'players', '{rsn}', 'stats'],
             lambda: getPlayerStatsStack.getPlayerStatsFunction,
             operationName: 'GetPlayerStats'
         }

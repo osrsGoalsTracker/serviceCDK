@@ -72,8 +72,10 @@ Optional parameters:
 - `region`: AWS region (defaults to us-west-2)
 
 The deployment will create:
-- API Gateway with base path `/players/{rsn}`
-- Lambda function for retrieving player stats
+- API Gateway with endpoints for user management and player stats
+- Lambda functions:
+  - CreateUser for user registration
+  - GetPlayerStats for retrieving player statistics
 - DynamoDB Goal table for storing player goals and progress
 - All resources will be tagged with the specified stage
 
@@ -81,11 +83,31 @@ The deployment will create:
 
 The service exposes:
 
-### GET /players/{rsn}/stats
+### POST /users
 
-Retrieves player's OSRS stats.
+Creates a new user account.
+
+**Request Body:**
+```json
+{
+    "email": "string"
+}
+```
+
+**Response:**
+```json
+{
+    "userId": "string",
+    "email": "string"
+}
+```
+
+### GET /users/{userId}/players/{rsn}/stats
+
+Retrieves player's OSRS stats for a specific user's registered player.
 
 **Parameters:**
+- `userId` (path parameter) - The user's unique identifier
 - `rsn` (path parameter) - RuneScape username
 
 **Response:**
@@ -120,8 +142,12 @@ Retrieves player's OSRS stats.
 ## Infrastructure Components
 
 The infrastructure includes:
-- API Gateway for REST endpoints
-- Lambda functions for business logic
+- API Gateway for REST endpoints:
+  - User management endpoints
+  - Player statistics endpoints
+- Lambda functions for business logic:
+  - CreateUser function for user registration
+  - GetPlayerStats function for retrieving player statistics
 - DynamoDB tables:
   - Goals table (pk/sk) for storing player goals and progress tracking
     - Partition key (pk): String
