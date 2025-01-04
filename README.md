@@ -73,10 +73,10 @@ Optional parameters:
 - `region`: AWS region (defaults to us-west-2)
 
 Stack Dependencies:
-- `GoalTableStack` - Independent
+- `GoalsTableStack` - Independent
 - `GetPlayerStatsStack` - Independent
-- `CreateUserStack` - Depends on GoalTableStack
-- `GetUserStack` - Depends on GoalTableStack
+- `CreateUserStack` - Depends on GoalsTableStack
+- `GetUserStack` - Depends on GoalsTableStack
 - `ApiGatewayStack` - Depends on all Lambda stacks
 
 ## API Endpoints
@@ -144,8 +144,13 @@ Retrieves player's OSRS stats for a specific user's registered player.
 - `npm run build` - Compile TypeScript
 - `npm run watch` - Watch for changes
 - `npm run test` - Run tests
+- `cdk list --context stage=dev --context account=<account-id>` - List all defined stacks
 - `cdk diff --context stage=dev --context account=<account-id>` - Show deployment changes
 - `cdk synth --context stage=dev --context account=<account-id>` - Emit CloudFormation template
+- `./updateDevLambda.sh <FunctionName>` - Update Lambda function code in dev environment
+  - Example: `./updateDevLambda.sh CreateUser`
+  - Available functions: CreateUser, GetUser, GetPlayerStats
+  - Automatically uses the correct jar file from ../service/build/libs/
 
 ## Security Notes
 
@@ -164,14 +169,15 @@ The infrastructure includes:
   - Player statistics endpoints
 - Lambda functions for business logic:
   - CreateUser function for user registration (with DynamoDB write access)
-    - Name format: `CreateUser-${stackName}`
+    - Name format: `CreateUser-${stage}`
   - GetUser function for retrieving user information (with DynamoDB read access)
-    - Name format: `GetUser-${stackName}`
+    - Name format: `GetUser-${stage}`
   - GetPlayerStats function for retrieving player statistics
-    - Name format: `GetPlayerStats-${stackName}`
-  - Stack names include the stage (e.g., `-dev` or `-prod` suffix)
+    - Name format: `GetPlayerStats-${stage}`
+  - All functions use simple stage suffix (e.g., `-dev` or `-prod`)
 - DynamoDB tables:
-  - Goals table (pk/sk) for storing player goals and progress tracking
+  - GoalsTable (pk/sk) for storing player goals and progress tracking
+    - Table name format: `GoalsTable-${stage}`
     - Partition key (pk): String
     - Sort key (sk): String
     - Pay-per-request billing

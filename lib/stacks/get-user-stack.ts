@@ -2,10 +2,10 @@ import * as cdk from 'aws-cdk-lib';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
-import { GoalTableStack } from './goal-table-stack';
+import { GoalsTableStack } from './goals-table-stack';
 
 interface GetUserStackProps extends cdk.StackProps {
-    goalTableStack: GoalTableStack;
+    goalsTableStack: GoalsTableStack;
 }
 
 export class GetUserStack extends cdk.Stack {
@@ -13,6 +13,8 @@ export class GetUserStack extends cdk.Stack {
 
     constructor(scope: Construct, id: string, props: GetUserStackProps) {
         super(scope, id, props);
+
+        const stage = this.node.tryGetContext('stage') || 'dev';
 
         // Create Lambda function
         this.getUserFunction = new lambda.Function(this, 'GetUserFunction', {
@@ -22,12 +24,12 @@ export class GetUserStack extends cdk.Stack {
             memorySize: 512,
             timeout: cdk.Duration.seconds(30),
             environment: {
-                GOAL_TABLE_NAME: props.goalTableStack.goalTable.tableName
+                GOAL_TABLE_NAME: props.goalsTableStack.goalTable.tableName
             },
-            functionName: `GetUser-${props.stackName}`
+            functionName: `GetUser-${stage}`
         });
 
         // Grant DynamoDB permissions
-        props.goalTableStack.goalTable.grantReadData(this.getUserFunction);
+        props.goalsTableStack.goalTable.grantReadData(this.getUserFunction);
     }
 } 

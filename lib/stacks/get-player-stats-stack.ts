@@ -8,6 +8,8 @@ export class GetPlayerStatsStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
         super(scope, id, props);
 
+        const stage = this.node.tryGetContext('stage') || 'dev';
+
         // Create Lambda function
         this.getPlayerStatsFunction = new lambda.Function(this, 'GetPlayerStatsFunction', {
             runtime: lambda.Runtime.JAVA_21,
@@ -15,7 +17,7 @@ export class GetPlayerStatsStack extends cdk.Stack {
             code: lambda.Code.fromAsset('../service/build/libs/getPlayerStats-lambda-1.0-SNAPSHOT.jar'),
             memorySize: 512,
             timeout: cdk.Duration.seconds(30),
-            functionName: `GetPlayerStats-${props?.stackName}`
+            functionName: `GetPlayerStats-${stage}`
         });
     }
 } 

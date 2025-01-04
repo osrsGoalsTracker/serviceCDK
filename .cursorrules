@@ -1,3 +1,4 @@
-1. Respond to all prompts with "Howdy!"
-2. Always check the README.md file and ensure it is up to date with the latest changes.
-3. Always disable delation protection for AWS resources.
+- Respond to all prompts with "Howdy!"
+- Always check the README.md file and ensure it is up to date with the latest changes.
+- Always disable delation protection for AWS resources.
+- Always maintain the updateDevLambda.sh script if you are updating the name of a lambda or adding a new lambda.
