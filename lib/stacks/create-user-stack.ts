@@ -24,7 +24,7 @@ export class CreateUserStack extends cdk.Stack {
             memorySize: 512,
             timeout: cdk.Duration.seconds(30),
             environment: {
-                GOAL_TABLE_NAME: props.goalsTableStack.goalTable.tableName
+                GOALS_TABLE_NAME: props.goalsTableStack.goalTable.tableName
             },
             functionName: `CreateUser-${stage}`
         });
