@@ -2,10 +2,10 @@ import * as cdk from 'aws-cdk-lib';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
-import { GoalsTableStack } from './goals-table-stack';
+import { GoalTrackerTableStack } from './goal-tracker-table-stack';
 
 interface CreateUserStackProps extends cdk.StackProps {
-    goalsTableStack: GoalsTableStack;
+    goalTrackerTableStack: GoalTrackerTableStack;
 }
 
 export class CreateUserStack extends cdk.Stack {
@@ -24,12 +24,12 @@ export class CreateUserStack extends cdk.Stack {
             memorySize: 512,
             timeout: cdk.Duration.seconds(30),
             environment: {
-                GOALS_TABLE_NAME: props.goalsTableStack.goalTable.tableName
+                GOAL_TRACKER_TABLE_NAME: props.goalTrackerTableStack.goalTrackerTable.tableName
             },
             functionName: `CreateUser-${stage}`
         });
 
         // Grant DynamoDB permissions
-        props.goalsTableStack.goalTable.grantWriteData(this.createUserFunction);
+        props.goalTrackerTableStack.goalTrackerTable.grantWriteData(this.createUserFunction);
     }
 } 

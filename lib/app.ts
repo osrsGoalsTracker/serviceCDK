@@ -1,7 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { ApiGatewayStack } from './stacks/api-gateway-stack';
 import { GetPlayerStatsStack } from './stacks/get-player-stats-stack';
-import { GoalsTableStack } from './stacks/goals-table-stack';
+import { GoalTrackerTableStack } from './stacks/goal-tracker-table-stack';
 import { CreateUserStack } from './stacks/create-user-stack';
 import { GetUserStack } from './stacks/get-user-stack';
 
@@ -27,11 +27,11 @@ const env: cdk.Environment = {
     region
 };
 
-// Create Goals DynamoDB table stack first (independent)
-const goalsTableStack = new GoalsTableStack(app, 'GoalsTableStack', {
+// Create GoalTracker DynamoDB table stack first (independent)
+const goalTrackerTableStack = new GoalTrackerTableStack(app, 'GoalTrackerTableStack', {
     env,
-    description: `OSRS Goals DynamoDB Table - ${stage}`,
-    stackName: `GoalsTable-${stage}`,
+    description: `OSRS GoalTracker DynamoDB Table - ${stage}`,
+    stackName: `GoalTrackerTable-${stage}`,
     tags: {
         Stage: stage,
         Project: 'OSRS Goals'
@@ -49,24 +49,24 @@ const getPlayerStatsStack = new GetPlayerStatsStack(app, 'GetPlayerStatsStack', 
     }
 });
 
-// Create CreateUser Lambda stack (depends on Goals table)
+// Create CreateUser Lambda stack (depends on GoalTracker table)
 const createUserStack = new CreateUserStack(app, 'CreateUserStack', {
     env,
     description: `OSRS Goals CreateUser Lambda - ${stage}`,
     stackName: `CreateUser-${stage}`,
-    goalsTableStack,
+    goalTrackerTableStack,
     tags: {
         Stage: stage,
         Project: 'OSRS Goals'
     }
 });
 
-// Create GetUser Lambda stack (depends on Goals table)
+// Create GetUser Lambda stack (depends on GoalTracker table)
 const getUserStack = new GetUserStack(app, 'GetUserStack', {
     env,
     description: `OSRS Goals GetUser Lambda - ${stage}`,
     stackName: `GetUser-${stage}`,
-    goalsTableStack,
+    goalTrackerTableStack,
     tags: {
         Stage: stage,
         Project: 'OSRS Goals'

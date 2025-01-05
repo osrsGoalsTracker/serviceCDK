@@ -73,10 +73,10 @@ Optional parameters:
 - `region`: AWS region (defaults to us-west-2)
 
 Stack Dependencies:
-- `GoalsTableStack` - Independent
+- `GoalTrackerTableStack` - Independent
 - `GetPlayerStatsStack` - Independent
-- `CreateUserStack` - Depends on GoalsTableStack
-- `GetUserStack` - Depends on GoalsTableStack
+- `CreateUserStack` - Depends on GoalTrackerTableStack
+- `GetUserStack` - Depends on GoalTrackerTableStack
 - `ApiGatewayStack` - Depends on all Lambda stacks
 
 ## API Endpoints
@@ -176,8 +176,8 @@ The infrastructure includes:
     - Name format: `GetPlayerStats-${stage}`
   - All functions use simple stage suffix (e.g., `-dev` or `-prod`)
 - DynamoDB tables:
-  - GoalsTable (pk/sk) for storing player goals and progress tracking
-    - Table name format: `GoalsTable-${stage}`
+  - GoalTrackerTable (pk/sk) for storing player goals and progress tracking
+    - Table name format: `goalTracker-${stage}`
     - Partition key (pk): String
     - Sort key (sk): String
     - Pay-per-request billing
