@@ -57,18 +57,34 @@ export class ApiGatewayStack extends cdk.Stack {
 
         // Add method with Lambda integration
         resource.addMethod(config.httpMethod, new apigateway.LambdaIntegration(config.lambda, {
-            proxy: true,
-            allowTestInvoke: true
+            proxy: false,
+            allowTestInvoke: true,
+            integrationResponses: [
+                {
+                    statusCode: '200'
+                }
+            ]
         }), {
             operationName: config.operationName,
             methodResponses: [
                 {
-                    statusCode: '200',
-                    responseModels: {
-                        'application/json': apigateway.Model.EMPTY_MODEL
-                    }
+                    statusCode: '200'
                 }
-            ]
+            ],
+            requestModels: config.httpMethod === 'POST' ? {
+                'application/json': new apigateway.Model(this, `${config.operationName}RequestModel`, {
+                    restApi: this.api,
+                    contentType: 'application/json',
+                    modelName: `${config.operationName}Request`,
+                    schema: {
+                        type: apigateway.JsonSchemaType.OBJECT,
+                        properties: {
+                            email: { type: apigateway.JsonSchemaType.STRING }
+                        },
+                        required: ['email']
+                    }
+                })
+            } : undefined
         });
     }
 } 
