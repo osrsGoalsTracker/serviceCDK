@@ -4,6 +4,7 @@ import { GetPlayerStatsStack } from './stacks/get-player-stats-stack';
 import { GoalTrackerTableStack } from './stacks/goal-tracker-table-stack';
 import { CreateUserStack } from './stacks/create-user-stack';
 import { GetUserStack } from './stacks/get-user-stack';
+import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 
 const app = new cdk.App();
 
@@ -78,6 +79,31 @@ new ApiGatewayStack(app, 'ApiGatewayStack', {
     env,
     description: `OSRS Goals API Gateway - ${stage}`,
     stackName: `ApiGateway-${stage}`,
+    parameterDefinitions: {
+        // Path parameters
+        '{userId}': {
+            name: 'userId',
+            type: apigateway.JsonSchemaType.STRING,
+            required: true,
+            source: 'path',
+            template: '$util.escapeJavaScript($input.params(\'userId\'))'
+        },
+        '{name}': {
+            name: 'name',
+            type: apigateway.JsonSchemaType.STRING,
+            required: true,
+            source: 'path',
+            template: '$util.escapeJavaScript($input.params(\'name\'))'
+        },
+        // Body parameters for POST /users
+        'users': {
+            name: 'email',
+            type: apigateway.JsonSchemaType.STRING,
+            required: true,
+            source: 'body',
+            template: '$input.json(\'$.email\')'
+        }
+    },
     routes: [
         {
             httpMethod: 'POST',
