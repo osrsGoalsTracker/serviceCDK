@@ -117,18 +117,17 @@ Retrieves user information.
 }
 ```
 
-### GET /users/{userId}/players/{rsn}/stats
+### GET /players/{name}/stats
 
-Retrieves player's OSRS stats for a specific user's registered player.
+Retrieves player's OSRS stats.
 
 **Parameters:**
-- `userId` (path parameter) - The user's unique identifier
-- `rsn` (path parameter) - RuneScape username
+- `name` (path parameter) - RuneScape username
 
 **Response:**
 ```json
 {
-    "rsn": "string",
+    "name": "string",
     "stats": {
         "overall": {
             "rank": number,

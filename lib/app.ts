@@ -93,7 +93,7 @@ new ApiGatewayStack(app, 'ApiGatewayStack', {
         },
         {
             httpMethod: 'GET',
-            resourcePath: ['players', '{rsn}', 'stats'],
+            resourcePath: ['players', '{name}', 'stats'],
             lambda: getPlayerStatsStack.getPlayerStatsFunction,
             operationName: 'GetPlayerStats'
         }
