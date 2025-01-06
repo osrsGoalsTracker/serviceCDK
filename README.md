@@ -180,6 +180,11 @@ The infrastructure includes:
     - Table name format: `goalTracker-${stage}`
     - Partition key (pk): String
     - Sort key (sk): String
+    - Global Secondary Indexes:
+      - email-id-index:
+        - Partition key (email): String
+        - Sort key (id): String
+        - Projection: ALL
     - Pay-per-request billing
     - Point-in-time recovery enabled
     - Used by CreateUser and GetUser functions

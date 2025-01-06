@@ -30,6 +30,6 @@ export class CreateUserStack extends cdk.Stack {
         });
 
         // Grant DynamoDB permissions
-        props.goalTrackerTableStack.goalTrackerTable.grantWriteData(this.createUserFunction);
+        props.goalTrackerTableStack.goalTrackerTable.grantReadWriteData(this.createUserFunction);
     }
 } 
