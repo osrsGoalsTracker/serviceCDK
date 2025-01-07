@@ -4,7 +4,7 @@
 if [ $# -ne 1 ]; then
     echo "Usage: ./updateDevLambda.sh <FunctionName>"
     echo "Example: ./updateDevLambda.sh CreateUser"
-    echo "Available functions: CreateUser, GetUser, GetPlayerStats, AddPlayerToUser"
+    echo "Available functions: CreateUser, GetUser, GetPlayerStats, AddPlayerToUser, GetPlayersForUser"
     exit 1
 fi
 
@@ -18,6 +18,7 @@ get_jar_name() {
         "GetUser") echo "getUser" ;;
         "GetPlayerStats") echo "getPlayerStats" ;;
         "AddPlayerToUser") echo "addPlayerToUser" ;;
+        "GetPlayersForUser") echo "getPlayersForUser" ;;
         *) echo "" ;;
     esac
 }
@@ -26,7 +27,7 @@ get_jar_name() {
 JAR_NAME=$(get_jar_name "$FUNCTION_NAME")
 if [ -z "$JAR_NAME" ]; then
     echo "Error: Invalid function name '${FUNCTION_NAME}'"
-    echo "Available functions: CreateUser, GetUser, GetPlayerStats, AddPlayerToUser"
+    echo "Available functions: CreateUser, GetUser, GetPlayerStats, AddPlayerToUser, GetPlayersForUser"
     exit 1
 fi
 

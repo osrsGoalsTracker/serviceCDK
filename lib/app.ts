@@ -5,6 +5,7 @@ import { GoalTrackerTableStack } from './stacks/goal-tracker-table-stack';
 import { CreateUserStack } from './stacks/create-user-stack';
 import { GetUserStack } from './stacks/get-user-stack';
 import { AddPlayerToUserStack } from './stacks/add-player-to-user-stack';
+import { GetPlayersForUserStack } from './stacks/get-players-for-user-stack';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 
 const app = new cdk.App();
@@ -87,6 +88,18 @@ const addPlayerToUserStack = new AddPlayerToUserStack(app, 'AddPlayerToUserStack
     }
 });
 
+// Create GetPlayersForUser Lambda stack (depends on GoalTracker table)
+const getPlayersForUserStack = new GetPlayersForUserStack(app, 'GetPlayersForUserStack', {
+    env,
+    description: `OSRS Goals GetPlayersForUser Lambda - ${stage}`,
+    stackName: `GetPlayersForUser-${stage}`,
+    goalTrackerTableStack,
+    tags: {
+        Stage: stage,
+        Project: 'OSRS Goals'
+    }
+});
+
 // Create API Gateway stack (depends on Lambdas)
 new ApiGatewayStack(app, 'ApiGatewayStack', {
     env,
@@ -141,6 +154,12 @@ new ApiGatewayStack(app, 'ApiGatewayStack', {
             resourcePath: ['users', '{userId}', 'players', '{name}'],
             lambda: addPlayerToUserStack.addPlayerToUserFunction,
             operationName: 'AddPlayerToUser'
+        },
+        {
+            httpMethod: 'GET',
+            resourcePath: ['users', '{userId}', 'players'],
+            lambda: getPlayersForUserStack.getPlayersForUserFunction,
+            operationName: 'GetPlayersForUser'
         }
     ],
     tags: {

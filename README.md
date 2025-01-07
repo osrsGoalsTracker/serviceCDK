@@ -155,6 +155,26 @@ Adds a player to a user's account.
 }
 ```
 
+### GET /users/{userId}/players
+
+Retrieves all players associated with a user's account.
+
+**Parameters:**
+- `userId` (path parameter) - The user's unique identifier
+
+**Response:**
+```json
+{
+    "userId": "string",
+    "players": [
+        {
+            "name": "string",
+            "addedAt": "timestamp"
+        }
+    ]
+}
+```
+
 ## Useful Commands
 
 - `npm run build` - Compile TypeScript
