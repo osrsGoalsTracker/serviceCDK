@@ -138,6 +138,23 @@ Retrieves player's OSRS stats.
 }
 ```
 
+### POST /users/{userId}/players/{name}
+
+Adds a player to a user's account.
+
+**Parameters:**
+- `userId` (path parameter) - The user's unique identifier
+- `name` (path parameter) - RuneScape username to add
+
+**Response:**
+```json
+{
+    "userId": "string",
+    "name": "string",
+    "added": true
+}
+```
+
 ## Useful Commands
 
 - `npm run build` - Compile TypeScript
@@ -165,6 +182,7 @@ The infrastructure includes:
   - User management endpoints:
     - Create user (with DynamoDB write access)
     - Get user information (with DynamoDB read access)
+    - Add player to user (with DynamoDB read/write access)
   - Player statistics endpoints
 - Lambda functions for business logic:
   - CreateUser function for user registration (with DynamoDB write access)
@@ -173,6 +191,8 @@ The infrastructure includes:
     - Name format: `GetUser-${stage}`
   - GetPlayerStats function for retrieving player statistics
     - Name format: `GetPlayerStats-${stage}`
+  - AddPlayerToUser function for adding players to users (with DynamoDB read/write access)
+    - Name format: `AddPlayerToUser-${stage}`
   - All functions use simple stage suffix (e.g., `-dev` or `-prod`)
 - DynamoDB tables:
   - GoalTrackerTable (pk/sk) for storing player goals and progress tracking
