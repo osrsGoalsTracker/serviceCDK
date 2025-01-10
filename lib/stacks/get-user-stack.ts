@@ -19,7 +19,7 @@ export class GetUserStack extends cdk.Stack {
         // Create Lambda function
         this.getUserFunction = new lambda.Function(this, 'GetUserFunction', {
             runtime: lambda.Runtime.JAVA_21,
-            handler: 'com.osrsGoalTracker.service.GetUserHandler::handleRequest',
+            handler: 'com.osrsGoalTracker.user.handler.GetUserHandler::handleRequest',
             code: lambda.Code.fromAsset('../service/build/libs/getUser-lambda-1.0-SNAPSHOT.jar'),
             memorySize: 512,
             timeout: cdk.Duration.seconds(30),

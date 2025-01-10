@@ -1,11 +1,11 @@
 import * as cdk from 'aws-cdk-lib';
 import { ApiGatewayStack } from './stacks/api-gateway-stack';
-import { GetPlayerStatsStack } from './stacks/get-player-stats-stack';
+import { GetCharacterHiscoresStack } from './stacks/get-character-hiscores-stack';
 import { GoalTrackerTableStack } from './stacks/goal-tracker-table-stack';
 import { CreateUserStack } from './stacks/create-user-stack';
 import { GetUserStack } from './stacks/get-user-stack';
-import { AddPlayerToUserStack } from './stacks/add-player-to-user-stack';
-import { GetPlayersForUserStack } from './stacks/get-players-for-user-stack';
+import { AddCharacterToUserStack } from './stacks/add-character-to-user-stack';
+import { GetCharactersForUserStack } from './stacks/get-characters-for-user-stack';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 
 const app = new cdk.App();
@@ -41,11 +41,11 @@ const goalTrackerTableStack = new GoalTrackerTableStack(app, 'GoalTrackerTableSt
     }
 });
 
-// Create GetPlayerStats Lambda stack (independent)
-const getPlayerStatsStack = new GetPlayerStatsStack(app, 'GetPlayerStatsStack', {
+// Create GetCharacterStats Lambda stack (independent)
+const getCharacterHiscoresStack = new GetCharacterHiscoresStack(app, 'GetCharacterHiscoresStack', {
     env,
-    description: `OSRS Goals GetPlayerStats Lambda - ${stage}`,
-    stackName: `GetPlayerStats-${stage}`,
+    description: `OSRS Goals GetCharacterHiscores Lambda - ${stage}`,
+    stackName: `GetCharacterHiscores-${stage}`,
     tags: {
         Stage: stage,
         Project: 'OSRS Goals'
@@ -76,11 +76,11 @@ const getUserStack = new GetUserStack(app, 'GetUserStack', {
     }
 });
 
-// Create AddPlayerToUser Lambda stack (depends on GoalTracker table)
-const addPlayerToUserStack = new AddPlayerToUserStack(app, 'AddPlayerToUserStack', {
+// Create AddCharacterToUser Lambda stack (depends on GoalTracker table)
+const addCharacterToUserStack = new AddCharacterToUserStack(app, 'AddCharacterToUserStack', {
     env,
-    description: `OSRS Goals AddPlayerToUser Lambda - ${stage}`,
-    stackName: `AddPlayerToUser-${stage}`,
+    description: `OSRS Goals AddCharacterToUser Lambda - ${stage}`,
+    stackName: `AddCharacterToUser-${stage}`,
     goalTrackerTableStack,
     tags: {
         Stage: stage,
@@ -88,11 +88,11 @@ const addPlayerToUserStack = new AddPlayerToUserStack(app, 'AddPlayerToUserStack
     }
 });
 
-// Create GetPlayersForUser Lambda stack (depends on GoalTracker table)
-const getPlayersForUserStack = new GetPlayersForUserStack(app, 'GetPlayersForUserStack', {
+// Create GetCharactersForUser Lambda stack (depends on GoalTracker table)
+const getCharactersForUserStack = new GetCharactersForUserStack(app, 'GetCharactersForUserStack', {
     env,
-    description: `OSRS Goals GetPlayersForUser Lambda - ${stage}`,
-    stackName: `GetPlayersForUser-${stage}`,
+    description: `OSRS Goals GetCharactersForUser Lambda - ${stage}`,
+    stackName: `GetCharactersForUser-${stage}`,
     goalTrackerTableStack,
     tags: {
         Stage: stage,
@@ -145,21 +145,21 @@ new ApiGatewayStack(app, 'ApiGatewayStack', {
         },
         {
             httpMethod: 'GET',
-            resourcePath: ['players', '{name}', 'stats'],
-            lambda: getPlayerStatsStack.getPlayerStatsFunction,
-            operationName: 'GetPlayerStats'
+            resourcePath: ['characters', '{name}', 'hiscores'],
+            lambda: getCharacterHiscoresStack.getCharacterHiscoresFunction,
+            operationName: 'GetCharacterHiscores'
         },
         {
             httpMethod: 'POST',
-            resourcePath: ['users', '{userId}', 'players', '{name}'],
-            lambda: addPlayerToUserStack.addPlayerToUserFunction,
-            operationName: 'AddPlayerToUser'
+            resourcePath: ['users', '{userId}', 'characters', '{name}'],
+            lambda: addCharacterToUserStack.addCharacterToUserFunction,
+            operationName: 'AddCharacterToUser'
         },
         {
             httpMethod: 'GET',
-            resourcePath: ['users', '{userId}', 'players'],
-            lambda: getPlayersForUserStack.getPlayersForUserFunction,
-            operationName: 'GetPlayersForUser'
+            resourcePath: ['users', '{userId}', 'characters'],
+            lambda: getCharactersForUserStack.getCharactersForUserFunction,
+            operationName: 'GetCharactersForUser'
         }
     ],
     tags: {

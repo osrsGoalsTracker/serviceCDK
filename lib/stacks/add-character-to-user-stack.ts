@@ -4,32 +4,32 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
 import { GoalTrackerTableStack } from './goal-tracker-table-stack';
 
-interface AddPlayerToUserStackProps extends cdk.StackProps {
+interface AddCharacterToUserStackProps extends cdk.StackProps {
     goalTrackerTableStack: GoalTrackerTableStack;
 }
 
-export class AddPlayerToUserStack extends cdk.Stack {
-    public readonly addPlayerToUserFunction: lambda.Function;
+export class AddCharacterToUserStack extends cdk.Stack {
+    public readonly addCharacterToUserFunction: lambda.Function;
 
-    constructor(scope: Construct, id: string, props: AddPlayerToUserStackProps) {
+    constructor(scope: Construct, id: string, props: AddCharacterToUserStackProps) {
         super(scope, id, props);
 
         const stage = this.node.tryGetContext('stage') || 'dev';
 
         // Create Lambda function
-        this.addPlayerToUserFunction = new lambda.Function(this, 'AddPlayerToUserFunction', {
+        this.addCharacterToUserFunction = new lambda.Function(this, 'AddCharacterToUserFunction', {
             runtime: lambda.Runtime.JAVA_21,
-            handler: 'com.osrsGoalTracker.service.AddPlayerToUserHandler::handleRequest',
-            code: lambda.Code.fromAsset('../service/build/libs/addPlayerToUser-lambda-1.0-SNAPSHOT.jar'),
+            handler: 'com.osrsGoalTracker.character.handler.AddCharacterToUserHandler::handleRequest',
+            code: lambda.Code.fromAsset('../service/build/libs/addCharacterToUser-lambda-1.0-SNAPSHOT.jar'),
             memorySize: 512,
             timeout: cdk.Duration.seconds(30),
             environment: {
                 GOAL_TRACKER_TABLE_NAME: props.goalTrackerTableStack.goalTrackerTable.tableName
             },
-            functionName: `AddPlayerToUser-${stage}`
+            functionName: `AddCharacterToUser-${stage}`
         });
 
         // Grant DynamoDB permissions
-        props.goalTrackerTableStack.goalTrackerTable.grantReadWriteData(this.addPlayerToUserFunction);
+        props.goalTrackerTableStack.goalTrackerTable.grantReadWriteData(this.addCharacterToUserFunction);
     }
 } 
