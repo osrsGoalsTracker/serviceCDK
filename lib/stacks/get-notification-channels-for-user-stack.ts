@@ -24,7 +24,7 @@ export class GetNotificationChannelsForUserStack extends cdk.Stack {
             memorySize: 512,
             timeout: cdk.Duration.seconds(30),
             environment: {
-                GOAL_TRACKER_TABLE_NAME: props.goalTrackerTableStack.goalTrackerTable.tableName
+                NOTIFICATION_CHANNEL_TABLE_NAME: props.goalTrackerTableStack.goalTrackerTable.tableName
             },
             functionName: `GetNotificationChannelsForUser-${stage}`
         });

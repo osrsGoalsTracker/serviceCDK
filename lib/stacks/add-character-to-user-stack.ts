@@ -24,7 +24,7 @@ export class AddCharacterToUserStack extends cdk.Stack {
             memorySize: 512,
             timeout: cdk.Duration.seconds(30),
             environment: {
-                GOAL_TRACKER_TABLE_NAME: props.goalTrackerTableStack.goalTrackerTable.tableName
+                CHARACTER_TABLE_NAME: props.goalTrackerTableStack.goalTrackerTable.tableName
             },
             functionName: `AddCharacterToUser-${stage}`
         });
