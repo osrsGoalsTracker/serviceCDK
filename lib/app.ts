@@ -6,6 +6,8 @@ import { CreateUserStack } from './stacks/create-user-stack';
 import { GetUserStack } from './stacks/get-user-stack';
 import { AddCharacterToUserStack } from './stacks/add-character-to-user-stack';
 import { GetCharactersForUserStack } from './stacks/get-characters-for-user-stack';
+import { CreateNotificationChannelForUserStack } from './stacks/create-notification-channel-for-user-stack';
+import { GetNotificationChannelsForUserStack } from './stacks/get-notification-channels-for-user-stack';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 
 const app = new cdk.App();
@@ -100,6 +102,30 @@ const getCharactersForUserStack = new GetCharactersForUserStack(app, 'GetCharact
     }
 });
 
+// Create CreateNotificationChannelForUser Lambda stack (depends on GoalTracker table)
+const createNotificationChannelForUserStack = new CreateNotificationChannelForUserStack(app, 'CreateNotificationChannelForUserStack', {
+    env,
+    description: `OSRS Goals CreateNotificationChannelForUser Lambda - ${stage}`,
+    stackName: `CreateNotificationChannelForUser-${stage}`,
+    goalTrackerTableStack,
+    tags: {
+        Stage: stage,
+        Project: 'OSRS Goals'
+    }
+});
+
+// Create GetNotificationChannelsForUser Lambda stack (depends on GoalTracker table)
+const getNotificationChannelsForUserStack = new GetNotificationChannelsForUserStack(app, 'GetNotificationChannelsForUserStack', {
+    env,
+    description: `OSRS Goals GetNotificationChannelsForUser Lambda - ${stage}`,
+    stackName: `GetNotificationChannelsForUser-${stage}`,
+    goalTrackerTableStack,
+    tags: {
+        Stage: stage,
+        Project: 'OSRS Goals'
+    }
+});
+
 // Create API Gateway stack (depends on Lambdas)
 new ApiGatewayStack(app, 'ApiGatewayStack', {
     env,
@@ -160,6 +186,18 @@ new ApiGatewayStack(app, 'ApiGatewayStack', {
             resourcePath: ['users', '{userId}', 'characters'],
             lambda: getCharactersForUserStack.getCharactersForUserFunction,
             operationName: 'GetCharactersForUser'
+        },
+        {
+            httpMethod: 'POST',
+            resourcePath: ['users', '{userId}', 'notification-channels'],
+            lambda: createNotificationChannelForUserStack.createNotificationChannelForUserFunction,
+            operationName: 'CreateNotificationChannelForUser'
+        },
+        {
+            httpMethod: 'GET',
+            resourcePath: ['users', '{userId}', 'notification-channels'],
+            lambda: getNotificationChannelsForUserStack.getNotificationChannelsForUserFunction,
+            operationName: 'GetNotificationChannelsForUser'
         }
     ],
     tags: {
