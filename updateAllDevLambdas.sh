@@ -10,6 +10,7 @@ FUNCTIONS=(
     "CreateNotificationChannelForUser"
     "GetNotificationChannelsForUser"
     "LambdaTester"
+    "CreateGoalFromGoalCreationRequestEvent"
 )
 
 # Track failures

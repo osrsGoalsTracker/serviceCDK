@@ -11,6 +11,7 @@ if [ -z "$1" ]; then
     echo "  - GetCharactersForUser"
     echo "  - CreateNotificationChannelForUser"
     echo "  - GetNotificationChannelsForUser"
+    echo "  - CreateGoalFromGoalCreationRequestEvent"
     echo "  - LambdaTester"
     exit 1
 fi
@@ -31,7 +32,7 @@ FUNCTION_NAME=$1
 
 # Validate function name
 case $FUNCTION_NAME in
-    "CreateUser"|"GetUser"|"GetCharacterHiscores"|"AddCharacterToUser"|"GetCharactersForUser"|"CreateNotificationChannelForUser"|"GetNotificationChannelsForUser"|"LambdaTester")
+    "CreateUser"|"GetUser"|"GetCharacterHiscores"|"AddCharacterToUser"|"GetCharactersForUser"|"CreateNotificationChannelForUser"|"GetNotificationChannelsForUser"|"CreateGoalFromGoalCreationRequestEvent"|"LambdaTester")
         ;;
     *)
         echo "Invalid function name: $FUNCTION_NAME"
@@ -49,6 +50,7 @@ get_jar_name() {
         "GetCharactersForUser") echo "getCharactersForUser" ;;
         "CreateNotificationChannelForUser") echo "createNotificationChannelForUser" ;;
         "GetNotificationChannelsForUser") echo "getNotificationChannelsForUser" ;;
+        "CreateGoalFromGoalCreationRequestEvent") echo "CreateGoalFromGoalCreationRequestEvent" ;;
         *) echo "" ;;
     esac
 }

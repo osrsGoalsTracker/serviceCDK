@@ -9,6 +9,8 @@ import { GetCharactersForUserStack } from './stacks/get-characters-for-user-stac
 import { CreateNotificationChannelForUserStack } from './stacks/create-notification-channel-for-user-stack';
 import { GetNotificationChannelsForUserStack } from './stacks/get-notification-channels-for-user-stack';
 import { LambdaTesterStack } from './stacks/lambda-tester-stack';
+import { GoalEventBusStack } from './stacks/goal-event-bus-stack';
+import { CreateGoalFromGoalCreationRequestEventStack } from './stacks/create-goal-from-goal-creation-request-event-stack';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 
 const app = new cdk.App();
@@ -127,6 +129,30 @@ const getNotificationChannelsForUserStack = new GetNotificationChannelsForUserSt
     }
 });
 
+// Create EventBus stack (independent)
+const goalEventBusStack = new GoalEventBusStack(app, 'GoalEventBusStack', {
+    env,
+    description: `OSRS Goals EventBus - ${stage}`,
+    stackName: `GoalEventBus-${stage}`,
+    tags: {
+        Stage: stage,
+        Project: 'OSRS Goals'
+    }
+});
+
+// Create CreateGoalFromEvent Lambda stack (depends on EventBus and GoalTracker table)
+const createGoalFromGoalCreationRequestEventStack = new CreateGoalFromGoalCreationRequestEventStack(app, 'CreateGoalFromGoalCreationRequestEventStack', {
+    env,
+    description: `OSRS Goals CreateGoalFromGoalCreationRequestEvent Lambda - ${stage}`,
+    stackName: `CreateGoalFromGoalCreationRequestEvent-${stage}`,
+    eventBus: goalEventBusStack.eventBus,
+    goalTrackerTable: goalTrackerTableStack.goalTrackerTable,
+    tags: {
+        Stage: stage,
+        Project: 'OSRS Goals'
+    }
+});
+
 // Create Lambda Tester stack (depends on all other Lambdas)
 const lambdaTesterStack = new LambdaTesterStack(app, 'LambdaTesterStack', {
     env,
@@ -139,7 +165,8 @@ const lambdaTesterStack = new LambdaTesterStack(app, 'LambdaTesterStack', {
         addCharacterToUserStack.addCharacterToUserFunction,
         getCharactersForUserStack.getCharactersForUserFunction,
         createNotificationChannelForUserStack.createNotificationChannelForUserFunction,
-        getNotificationChannelsForUserStack.getNotificationChannelsForUserFunction
+        getNotificationChannelsForUserStack.getNotificationChannelsForUserFunction,
+        createGoalFromGoalCreationRequestEventStack.createGoalLambda
     ],
     tags: {
         Stage: stage,

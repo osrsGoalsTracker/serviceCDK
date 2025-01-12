@@ -2,10 +2,12 @@ import json
 import boto3
 import os
 import uuid
+import datetime
 import concurrent.futures
 from typing import List, Dict, Any
 
 lambda_client = boto3.client('lambda')
+events_client = boto3.client('events')
 
 def create_api_gateway_event(test_case):
     """Create an API Gateway-like event for Lambda invocation."""
@@ -124,6 +126,56 @@ def execute_notification_chain(stage: str, user_id: str, email: str) -> List[Dic
 
     return results
 
+def execute_goal_chain(stage: str, user_id: str, character_name: str) -> List[Dict[str, Any]]:
+    """Execute goal-related operations through EventBus."""
+    event_bus_name = f"goal-event-bus-{stage}"
+    
+    # Create a test goal creation event
+    goal_event = {
+        'userId': user_id,
+        'characterName': character_name,
+        'targetAttribute': 'WOODCUTTING',
+        'targetType': 'SKILL',
+        'targetValue': 99,
+        'currentValue': 1,
+        'targetDate': (datetime.datetime.now() + datetime.timedelta(days=30)).isoformat(),
+        'notificationChannelType': 'EMAIL',
+        'frequency': 'DAILY'
+    }
+
+    try:
+        # Put the event on the EventBus
+        response = events_client.put_events(
+            Entries=[
+                {
+                    'Source': 'lambda-tester',
+                    'DetailType': 'GoalCreationEvent',
+                    'Detail': json.dumps(goal_event),
+                    'EventBusName': event_bus_name
+                }
+            ]
+        )
+
+        if response['FailedEntryCount'] > 0:
+            return [{
+                'function': 'GoalCreationEvent',
+                'status': 'FAIL',
+                'error': 'Failed to put event on EventBus'
+            }]
+        
+        return [{
+            'function': 'GoalCreationEvent',
+            'status': 'PASS',
+            'statusCode': 200
+        }]
+
+    except Exception as e:
+        return [{
+            'function': 'GoalCreationEvent',
+            'status': 'ERROR',
+            'error': str(e)
+        }]
+
 def execute_user_chain(stage: str, test_email: str) -> List[Dict[str, Any]]:
     """Execute the user-related Lambda chain with parallel sub-chains."""
     results = []
@@ -149,15 +201,17 @@ def execute_user_chain(stage: str, test_email: str) -> List[Dict[str, Any]]:
         results.append(get_user_result)
 
         if get_user_result['status'] == 'PASS':
-            # Execute character and notification chains in parallel
-            with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+            # Execute character, notification, and goal chains in parallel
+            with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
                 # Submit independent chains
                 character_chain = executor.submit(execute_character_chain, stage, user_id)
                 notification_chain = executor.submit(execute_notification_chain, stage, user_id, test_email)
+                goal_chain = executor.submit(execute_goal_chain, stage, user_id, 'characterN')
 
                 # Gather results from all chains
                 results.extend(character_chain.result())
                 results.extend(notification_chain.result())
+                results.extend(goal_chain.result())
 
     return results
 

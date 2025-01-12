@@ -76,10 +76,46 @@ Optional parameters:
 Stack Dependencies:
 - `GoalTrackerTableStack` - Independent
 - `GetPlayerStatsStack` - Independent
+- `GoalEventBusStack` - Independent
 - `CreateUserStack` - Depends on GoalTrackerTableStack
 - `GetUserStack` - Depends on GoalTrackerTableStack
+- `CreateGoalFromEventStack` - Depends on GoalEventBusStack and GoalTrackerTableStack
 - `ApiGatewayStack` - Depends on all Lambda stacks
 - `LambdaTesterStack` - Depends on all Lambda stacks
+
+## Event Bus
+
+The service uses EventBridge for event-driven communication between components. The following events are supported:
+
+### GoalCreationEvent
+
+Event published when a goal is requested to be created.
+
+**Event Detail Type:** `GoalCreationEvent`
+
+**Event Detail:**
+```json
+{
+    "userId": "string",
+    "characterName": "string",
+    "targetAttribute": "string",
+    "targetType": "string",
+    "targetValue": "number",
+    "currentValue": "number",
+    "targetDate": "string (ISO-8601)",
+    "notificationChannelType": "string",
+    "frequency": "string"
+}
+```
+
+## Lambda Functions
+
+### CreateGoalFromEvent
+
+Processes GoalCreationEvents from the EventBus and creates goals in the DynamoDB table.
+
+**Input:** EventBridge event with GoalCreationEvent detail
+**Output:** None (writes to DynamoDB)
 
 ## Lambda Tester
 
