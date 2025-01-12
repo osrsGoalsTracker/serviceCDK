@@ -42,24 +42,24 @@ def invoke_lambda(function_name: str, test_case: dict, stage: str) -> dict:
     """Invoke a Lambda function and return its response."""
     full_function_name = f"{function_name}-{stage}"
     test_event = create_api_gateway_event(test_case)
-    
+
     try:
         response = lambda_client.invoke(
             FunctionName=full_function_name,
             InvocationType='RequestResponse',
             Payload=json.dumps(test_event)
         )
-        
+
         response_payload = json.loads(response['Payload'].read().decode())
         status_code = response_payload.get('statusCode', 500)
-        
+
         if status_code != 200:
             error_body = response_payload.get('body')
             try:
                 error_body = json.loads(error_body) if error_body else None
             except:
                 pass
-        
+
         return {
             'function': function_name,
             'status': 'PASS' if status_code == 200 else 'FAIL',
@@ -67,7 +67,7 @@ def invoke_lambda(function_name: str, test_case: dict, stage: str) -> dict:
             'response': response_payload,
             'error': error_body if status_code != 200 else None
         }
-        
+
     except Exception as e:
         return {
             'function': function_name,
@@ -95,7 +95,7 @@ def execute_character_chain(stage: str, user_id: str) -> List[Dict[str, Any]]:
                 'userId': user_id
             }
         }, stage))
-    
+
     return results
 
 def execute_notification_chain(stage: str, user_id: str, email: str) -> List[Dict[str, Any]]:
@@ -121,7 +121,7 @@ def execute_notification_chain(stage: str, user_id: str, email: str) -> List[Dic
                 'userId': user_id
             }
         }, stage))
-    
+
     return results
 
 def execute_user_chain(stage: str, test_email: str) -> List[Dict[str, Any]]:
@@ -158,7 +158,7 @@ def execute_user_chain(stage: str, test_email: str) -> List[Dict[str, Any]]:
                 # Gather results from all chains
                 results.extend(character_chain.result())
                 results.extend(notification_chain.result())
-    
+
     return results
 
 def execute_hiscores_chain(stage: str) -> List[Dict[str, Any]]:
@@ -184,7 +184,7 @@ def handler(event, context):
         # Gather results
         results.extend(user_chain.result())
         results.extend(hiscores_chain.result())
-    
+
     # Process results into a cleaner format
     passed_tests = [r['function'] for r in results if r['status'] == 'PASS']
     failed_tests = [{
@@ -193,7 +193,7 @@ def handler(event, context):
         'statusCode': r.get('statusCode'),
         'error': r['error']
     } for r in results if r['status'] != 'PASS']
-    
+
     return {
         'passed': passed_tests,
         'failed': failed_tests,
