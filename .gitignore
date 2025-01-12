@@ -65,4 +65,48 @@ surefire-reports/
 .settings/
 .project
 .classpath
-.factorypath 
+.factorypath
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Environment variables
+.env
+
+# Python dependencies
+lambda_tester/*.dist-info/
+lambda_tester/*.egg-info/
+lambda_tester/boto3/
+lambda_tester/botocore/
+lambda_tester/dateutil/
+lambda_tester/jmespath/
+lambda_tester/s3transfer/
+lambda_tester/urllib3/
+lambda_tester/__pycache__/
+lambda_tester/*.pyc
+
+# CDK
+cdk.out/
+cdk.context.json
+
+# Node
+node_modules/ 

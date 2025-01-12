@@ -7,6 +7,7 @@ AWS CDK infrastructure code for the OSRS Goals application, which tracks Old Sch
 - Node.js v22 (use nvm to install: `nvm install 22 && nvm use 22`)
 - AWS CLI configured with appropriate credentials
 - AWS CDK CLI (`npm install -g aws-cdk`)
+- Python 3.11 (for Lambda tester)
 
 ## AWS Setup
 
@@ -78,6 +79,102 @@ Stack Dependencies:
 - `CreateUserStack` - Depends on GoalTrackerTableStack
 - `GetUserStack` - Depends on GoalTrackerTableStack
 - `ApiGatewayStack` - Depends on all Lambda stacks
+- `LambdaTesterStack` - Depends on all Lambda stacks
+
+## Lambda Tester
+
+The Lambda Tester is a Python-based Lambda function that tests all other Lambda functions in the application. It simulates API Gateway requests and verifies that each Lambda returns a 200 status code.
+
+### Test Cases
+
+The tester includes test cases for each Lambda function:
+
+```python
+{
+    'CreateUser': {
+        'body': {
+            'email': 'test@example.com'
+        }
+    },
+    'GetUser': {
+        'pathParameters': {
+            'userId': 'test-user-id'
+        }
+    },
+    'GetCharacterHiscores': {
+        'pathParameters': {
+            'name': 'test-character'
+        }
+    },
+    'AddCharacterToUser': {
+        'pathParameters': {
+            'userId': 'test-user-id'
+        },
+        'body': {
+            'name': 'test-character'
+        }
+    },
+    'GetCharactersForUser': {
+        'pathParameters': {
+            'userId': 'test-user-id'
+        }
+    },
+    'CreateNotificationChannelForUser': {
+        'pathParameters': {
+            'userId': 'test-user-id'
+        },
+        'body': {
+            'type': 'EMAIL',
+            'destination': 'test@example.com'
+        }
+    },
+    'GetNotificationChannelsForUser': {
+        'pathParameters': {
+            'userId': 'test-user-id'
+        }
+    }
+}
+```
+
+### Running Tests
+
+To run the Lambda tester:
+
+1. Deploy the tester:
+```bash
+./updateDevLambda.sh LambdaTester
+```
+
+2. Invoke the tester through AWS Console or CLI:
+```bash
+aws lambda invoke \
+    --function-name LambdaTester-dev \
+    --payload '{}' \
+    response.json
+```
+
+3. Check the results in `response.json`:
+```json
+{
+    "statusCode": 200,
+    "body": {
+        "results": [
+            {
+                "function": "CreateUser",
+                "status": "PASS",
+                "statusCode": 200
+            },
+            // ... more results ...
+        ],
+        "summary": {
+            "total": 7,
+            "passed": 7,
+            "failed": 0,
+            "errors": 0
+        }
+    }
+}
+```
 
 ## API Endpoints
 
@@ -175,6 +272,52 @@ Retrieves all players associated with a user's account.
 }
 ```
 
+### POST /users/{userId}/notification-channels
+
+Creates a notification channel for a user.
+
+**Parameters:**
+- `userId` (path parameter) - The user's unique identifier
+
+**Request Body:**
+```json
+{
+    "type": "EMAIL",
+    "destination": "string"
+}
+```
+
+**Response:**
+```json
+{
+    "userId": "string",
+    "channelId": "string",
+    "type": "EMAIL",
+    "destination": "string"
+}
+```
+
+### GET /users/{userId}/notification-channels
+
+Retrieves all notification channels for a user.
+
+**Parameters:**
+- `userId` (path parameter) - The user's unique identifier
+
+**Response:**
+```json
+{
+    "userId": "string",
+    "channels": [
+        {
+            "channelId": "string",
+            "type": "EMAIL",
+            "destination": "string"
+        }
+    ]
+}
+```
+
 ## Useful Commands
 
 - `npm run build` - Compile TypeScript
@@ -185,8 +328,9 @@ Retrieves all players associated with a user's account.
 - `cdk synth --context stage=dev --context account=<account-id>` - Emit CloudFormation template
 - `./updateDevLambda.sh <FunctionName>` - Update Lambda function code in dev environment
   - Example: `./updateDevLambda.sh CreateUser`
-  - Available functions: CreateUser, GetUser, GetPlayerStats
+  - Available functions: CreateUser, GetUser, GetPlayerStats, AddCharacterToUser, GetCharactersForUser, CreateNotificationChannelForUser, GetNotificationChannelsForUser, LambdaTester
   - Automatically uses the correct jar file from ../service/build/libs/
+- `./updateAllDevLambdas.sh` - Update all Lambda functions at once
 
 ## Security Notes
 
@@ -204,6 +348,7 @@ The infrastructure includes:
     - Get user information (with DynamoDB read access)
     - Add player to user (with DynamoDB read/write access)
   - Player statistics endpoints
+  - Notification channel endpoints
 - Lambda functions for business logic:
   - CreateUser function for user registration (with DynamoDB write access)
     - Name format: `CreateUser-${stage}`
@@ -213,6 +358,12 @@ The infrastructure includes:
     - Name format: `GetPlayerStats-${stage}`
   - AddPlayerToUser function for adding players to users (with DynamoDB read/write access)
     - Name format: `AddPlayerToUser-${stage}`
+  - CreateNotificationChannelForUser function for creating notification channels (with DynamoDB write access)
+    - Name format: `CreateNotificationChannelForUser-${stage}`
+  - GetNotificationChannelsForUser function for retrieving notification channels (with DynamoDB read access)
+    - Name format: `GetNotificationChannelsForUser-${stage}`
+  - LambdaTester function for testing all other Lambda functions
+    - Name format: `LambdaTester-${stage}`
   - All functions use simple stage suffix (e.g., `-dev` or `-prod`)
 - DynamoDB tables:
   - GoalTrackerTable (pk/sk) for storing player goals and progress tracking

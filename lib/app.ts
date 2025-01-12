@@ -8,6 +8,7 @@ import { AddCharacterToUserStack } from './stacks/add-character-to-user-stack';
 import { GetCharactersForUserStack } from './stacks/get-characters-for-user-stack';
 import { CreateNotificationChannelForUserStack } from './stacks/create-notification-channel-for-user-stack';
 import { GetNotificationChannelsForUserStack } from './stacks/get-notification-channels-for-user-stack';
+import { LambdaTesterStack } from './stacks/lambda-tester-stack';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 
 const app = new cdk.App();
@@ -120,6 +121,26 @@ const getNotificationChannelsForUserStack = new GetNotificationChannelsForUserSt
     description: `OSRS Goals GetNotificationChannelsForUser Lambda - ${stage}`,
     stackName: `GetNotificationChannelsForUser-${stage}`,
     goalTrackerTableStack,
+    tags: {
+        Stage: stage,
+        Project: 'OSRS Goals'
+    }
+});
+
+// Create Lambda Tester stack (depends on all other Lambdas)
+const lambdaTesterStack = new LambdaTesterStack(app, 'LambdaTesterStack', {
+    env,
+    description: `OSRS Goals Lambda Tester - ${stage}`,
+    stackName: `LambdaTester-${stage}`,
+    lambdaFunctions: [
+        createUserStack.createUserFunction,
+        getUserStack.getUserFunction,
+        getCharacterHiscoresStack.getCharacterHiscoresFunction,
+        addCharacterToUserStack.addCharacterToUserFunction,
+        getCharactersForUserStack.getCharactersForUserFunction,
+        createNotificationChannelForUserStack.createNotificationChannelForUserFunction,
+        getNotificationChannelsForUserStack.getNotificationChannelsForUserFunction
+    ],
     tags: {
         Stage: stage,
         Project: 'OSRS Goals'
