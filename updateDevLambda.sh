@@ -1,18 +1,12 @@
 #!/bin/bash
 
+# Source configuration
+source ./config.sh
+
 # Check if a function name was provided
 if [ -z "$1" ]; then
     echo "Usage: $0 <function-name>"
-    echo "Available functions:"
-    echo "  - CreateUser"
-    echo "  - GetUser"
-    echo "  - GetCharacterHiscores"
-    echo "  - AddCharacterToUser"
-    echo "  - GetCharactersForUser"
-    echo "  - CreateNotificationChannelForUser"
-    echo "  - GetNotificationChannelsForUser"
-    echo "  - CreateGoalFromGoalCreationRequestEvent"
-    echo "  - LambdaTester"
+    list_lambda_functions
     exit 1
 fi
 
@@ -31,29 +25,11 @@ set +a
 FUNCTION_NAME=$1
 
 # Validate function name
-case $FUNCTION_NAME in
-    "CreateUser"|"GetUser"|"GetCharacterHiscores"|"AddCharacterToUser"|"GetCharactersForUser"|"CreateNotificationChannelForUser"|"GetNotificationChannelsForUser"|"CreateGoalFromGoalCreationRequestEvent"|"LambdaTester")
-        ;;
-    *)
-        echo "Invalid function name: $FUNCTION_NAME"
-        exit 1
-        ;;
-esac
-
-# Get the jar name based on the function name
-get_jar_name() {
-    case "$1" in
-        "CreateUser") echo "createUser" ;;
-        "GetUser") echo "getUser" ;;
-        "GetCharacterHiscores") echo "getCharacterHiscores" ;;
-        "AddCharacterToUser") echo "addCharacterToUser" ;;
-        "GetCharactersForUser") echo "getCharactersForUser" ;;
-        "CreateNotificationChannelForUser") echo "createNotificationChannelForUser" ;;
-        "GetNotificationChannelsForUser") echo "getNotificationChannelsForUser" ;;
-        "CreateGoalFromGoalCreationRequestEvent") echo "CreateGoalFromGoalCreationRequestEvent" ;;
-        *) echo "" ;;
-    esac
-}
+if ! validate_lambda_name "$FUNCTION_NAME"; then
+    echo "Invalid function name: $FUNCTION_NAME"
+    list_lambda_functions
+    exit 1
+fi
 
 # Configure AWS credentials
 if [ "$USE_SSO" = true ]; then
@@ -71,7 +47,7 @@ else
 fi
 
 # Handle Python Lambda (LambdaTester) differently
-if [ "$FUNCTION_NAME" = "LambdaTester" ]; then
+if [ "$FUNCTION_NAME" = "$LAMBDA_TESTER" ]; then
     echo "Deploying Python Lambda: $FUNCTION_NAME"
     
     # Install dependencies

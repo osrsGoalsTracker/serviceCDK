@@ -1,10 +1,7 @@
 #!/bin/bash
 
-# Check if a stack name was provided
-if [ -z "$1" ]; then
-    echo "Usage: $0 <stack-name>"
-    exit 1
-fi
+# Source configuration
+source ./config.sh
 
 # Check if .env file exists
 if [ ! -f .env ]; then
@@ -53,6 +50,32 @@ else
         exit 1
     fi
     PROFILE_TO_USE=$LOCAL_PROFILE
+fi
+
+# Function to list all stacks
+list_stacks() {
+    echo "Available stacks:"
+    echo "  - $GOAL_TRACKER_TABLE_STACK"
+    echo "  - $GET_CHARACTER_HISCORES_STACK"
+    echo "  - $CREATE_USER_STACK"
+    echo "  - $GET_USER_STACK"
+    echo "  - $ADD_CHARACTER_TO_USER_STACK"
+    echo "  - $GET_CHARACTERS_FOR_USER_STACK"
+    echo "  - $CREATE_NOTIFICATION_CHANNEL_FOR_USER_STACK"
+    echo "  - $GET_NOTIFICATION_CHANNELS_FOR_USER_STACK"
+    echo "  - $GOAL_EVENT_BUS_STACK"
+    echo "  - $CREATE_GOAL_FROM_EVENT_STACK"
+    echo "  - $LAMBDA_TESTER_STACK"
+    echo "  - $API_GATEWAY_STACK"
+}
+
+# If no stack name provided, list available stacks
+if [ -z "$1" ]; then
+    echo "Usage: $0 <stack-name>"
+    list_stacks
+    echo -e "\nOr use 'cdk list' to see all stacks:"
+    cdk list --context stage="$STAGE" --context account="$AWS_ACCOUNT" --profile "$PROFILE_TO_USE"
+    exit 1
 fi
 
 # Deploy the stack
