@@ -4,3 +4,62 @@
 - Always maintain the updateDevLambda.sh script if you are updating the name of a lambda or adding a new lambda.
 - Java lambda functions should be in the service/build/libs directory.
 - Java lambdas use JDK 21.
+
+Here is how to add a new lambda:
+1. Add Lambda configuration to config.json:
+```
+   "newLambda": {
+       "name": "NewLambdaStack",
+       "lambda": {
+           "name": "NewLambda",
+           "jarPath": "../service/build/libs/newLambda-lambda-1.0-SNAPSHOT.jar",
+           "handler": "com.osrs.handler.NewLambdaHandler::handleRequest"
+       }
+   }
+```
+
+2. Create a new stack file in lib/stacks/new-lambda-stack.ts:
+- Copy structure from an existing stack
+- Update class name, interface, and function names
+- Set appropriate DynamoDB permissions (grantReadData or grantWriteData)
+- Use config values for handler, jarPath, and function name
+
+3. Import and instantiate the stack in lib/app.ts:
+```
+   import { NewLambdaStack } from './stacks/new-lambda-stack';
+   
+   // Create stack with appropriate dependencies
+   const newLambdaStack = new NewLambdaStack(app, 'NewLambdaStack', {
+       env,
+       description: `OSRS Goals NewLambda - ${stage}`,
+       stackName: `NewLambda-${stage}`,
+       goalTrackerTableStack, // if needed
+       tags: {
+           Stage: stage,
+           Project: 'OSRS Goals'
+       }
+   });
+```
+
+4. Add the Lambda to the LambdaTesterStack in lib/app.ts:
+```
+   lambdaFunctions: [
+       // ... existing lambdas ...
+       newLambdaStack.newLambdaFunction
+   ]
+```
+
+5. Add appropriate test case in lambda_tester/lambda_tester.py:
+- Add to an existing chain or create a new one
+- Include appropriate test data
+
+6. Update README.md:
+- Add stack to Stack Dependencies section
+- Document new API endpoint if applicable
+- Update Infrastructure Components section
+
+Remember:
+- All Lambda stacks should follow the same pattern as existing ones
+- Use TABLE_NAME and STAGE for environment variables
+- Follow existing naming conventions
+- Test thoroughly before deploying to production

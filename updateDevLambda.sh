@@ -1,7 +1,37 @@
 #!/bin/bash
 
-# Source configuration
-source ./config.sh
+# Function to read value from JSON config using jq
+get_config_value() {
+    local key=$1
+    jq -r "$key" config.json
+}
+
+# Function to list all lambda functions
+list_lambda_functions() {
+    echo "Available functions:"
+    for stack in $(jq -r '.stacks | keys[]' config.json); do
+        lambda_name=$(jq -r ".stacks[\"$stack\"].lambda.name" config.json)
+        if [ "$lambda_name" != "null" ]; then
+            echo " - $lambda_name"
+        fi
+    done
+    echo " - LambdaTester"
+}
+
+# Function to get jar path for a lambda
+get_jar_path() {
+    local lambda_name=$1
+    jq -r ".stacks | to_entries[] | select(.value.lambda.name == \"$lambda_name\") | .value.lambda.jarPath" config.json
+}
+
+# Check if jq is installed
+if ! command -v jq &> /dev/null; then
+    echo "Error: jq is required but not installed"
+    echo "Please install jq first:"
+    echo "  - Mac: brew install jq"
+    echo "  - Linux: sudo apt-get install jq"
+    exit 1
+fi
 
 # Check if a function name was provided
 if [ -z "$1" ]; then
@@ -24,8 +54,8 @@ set +a
 
 FUNCTION_NAME=$1
 
-# Validate function name
-if ! validate_lambda_name "$FUNCTION_NAME"; then
+# Validate function name exists in config
+if [ "$FUNCTION_NAME" != "LambdaTester" ] && [ -z "$(get_jar_path "$FUNCTION_NAME")" ]; then
     echo "Invalid function name: $FUNCTION_NAME"
     list_lambda_functions
     exit 1
@@ -47,7 +77,7 @@ else
 fi
 
 # Handle Python Lambda (LambdaTester) differently
-if [ "$FUNCTION_NAME" = "$LAMBDA_TESTER" ]; then
+if [ "$FUNCTION_NAME" = "LambdaTester" ]; then
     echo "Deploying Python Lambda: $FUNCTION_NAME"
     
     # Install dependencies
@@ -79,9 +109,9 @@ if [ "$FUNCTION_NAME" = "$LAMBDA_TESTER" ]; then
     fi
 else
     # Handle Java Lambdas
-    JAR_NAME=$(get_jar_name "$FUNCTION_NAME")
-    if [ -z "$JAR_NAME" ]; then
-        echo "Error: Invalid function name '${FUNCTION_NAME}'"
+    JAR_PATH=$(get_jar_path "$FUNCTION_NAME")
+    if [ -z "$JAR_PATH" ]; then
+        echo "Error: Could not find jar path for function '${FUNCTION_NAME}'"
         exit 1
     fi
 
@@ -89,7 +119,6 @@ else
     FULL_FUNCTION_NAME="${FUNCTION_NAME}-${STAGE}"
 
     # Check if the jar file exists
-    JAR_PATH="../service/build/libs/${JAR_NAME}-lambda-1.0-SNAPSHOT.jar"
     if [ ! -f "$JAR_PATH" ]; then
         echo "Error: Jar file not found at ${JAR_PATH}"
         echo "Make sure you've built the project first"

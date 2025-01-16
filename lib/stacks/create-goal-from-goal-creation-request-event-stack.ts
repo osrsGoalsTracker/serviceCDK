@@ -2,9 +2,9 @@ import * as cdk from 'aws-cdk-lib';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as events from 'aws-cdk-lib/aws-events';
 import * as targets from 'aws-cdk-lib/aws-events-targets';
-import * as iam from 'aws-cdk-lib/aws-iam';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
+import config from '../config';
 
 interface CreateGoalFromGoalCreationRequestEventStackProps extends cdk.StackProps {
     eventBus: events.EventBus;
@@ -18,19 +18,24 @@ export class CreateGoalFromGoalCreationRequestEventStack extends cdk.Stack {
         super(scope, id, props);
 
         const stage = this.node.tryGetContext('stage') || 'dev';
+        const stackConfig = config.stacks.createGoalFromGoalCreationRequestEvent;
 
-        // Create the Lambda function
-        this.createGoalLambda = new lambda.Function(this, 'CreateGoalFromEventLambda', {
-            functionName: `CreateGoalFromGoalCreationRequestEvent-${stage}`,
+        if (!stackConfig.lambda) {
+            throw new Error('Lambda configuration missing for CreateGoalFromGoalCreationRequestEvent stack');
+        }
+
+        // Create Lambda function
+        this.createGoalLambda = new lambda.Function(this, 'CreateGoalFromGoalCreationRequestEventLambda', {
             runtime: lambda.Runtime.JAVA_21,
-            handler: 'com.osrsGoalTracker.goal.handler.CreateGoalFromGoalCreationRequestEventHandler::handleRequest',
-            code: lambda.Code.fromAsset('../service/build/libs/createGoalFromGoalCreationRequestEvent-lambda-1.0-SNAPSHOT.jar'),
-            timeout: cdk.Duration.seconds(30),
+            handler: stackConfig.lambda.handler,
+            code: lambda.Code.fromAsset(stackConfig.lambda.jarPath),
             memorySize: 512,
+            timeout: cdk.Duration.seconds(30),
+            functionName: `${stackConfig.lambda.name}-${stage}`,
             environment: {
-                STAGE: stage,
-                GOAL_TRACKER_TABLE_NAME: props.goalTrackerTable.tableName,
-            },
+                TABLE_NAME: props.goalTrackerTable.tableName,
+                STAGE: stage
+            }
         });
 
         // Grant DynamoDB permissions

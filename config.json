@@ -1,0 +1,80 @@
+{
+    "stacks": {
+        "goalTrackerTable": {
+            "name": "GoalTrackerTableStack"
+        },
+        "getCharacterHiscores": {
+            "name": "GetCharacterHiscoresStack",
+            "lambda": {
+                "name": "GetCharacterHiscores",
+                "jarPath": "../service/build/libs/getCharacterHiscores-lambda-1.0-SNAPSHOT.jar",
+                "handler": "com.osrsGoalTracker.hiscore.handler.GetCharacterHiscoresHandler::handleRequest"
+            }
+        },
+        "createUser": {
+            "name": "CreateUserStack",
+            "lambda": {
+                "name": "CreateUser",
+                "jarPath": "../service/build/libs/createUser-lambda-1.0-SNAPSHOT.jar",
+                "handler": "com.osrs.handler.CreateUserHandler::handleRequest"
+            }
+        },
+        "getUser": {
+            "name": "GetUserStack",
+            "lambda": {
+                "name": "GetUser",
+                "jarPath": "../service/build/libs/getUser-lambda-1.0-SNAPSHOT.jar",
+                "handler": "com.osrs.handler.GetUserHandler::handleRequest"
+            }
+        },
+        "addCharacterToUser": {
+            "name": "AddCharacterToUserStack",
+            "lambda": {
+                "name": "AddCharacterToUser",
+                "jarPath": "../service/build/libs/addCharacterToUser-lambda-1.0-SNAPSHOT.jar",
+                "handler": "com.osrs.handler.AddCharacterToUserHandler::handleRequest"
+            }
+        },
+        "getCharactersForUser": {
+            "name": "GetCharactersForUserStack",
+            "lambda": {
+                "name": "GetCharactersForUser",
+                "jarPath": "../service/build/libs/getCharactersForUser-lambda-1.0-SNAPSHOT.jar",
+                "handler": "com.osrs.handler.GetCharactersForUserHandler::handleRequest"
+            }
+        },
+        "createNotificationChannelForUser": {
+            "name": "CreateNotificationChannelForUserStack",
+            "lambda": {
+                "name": "CreateNotificationChannelForUser",
+                "jarPath": "../service/build/libs/createNotificationChannelForUser-lambda-1.0-SNAPSHOT.jar",
+                "handler": "com.osrs.handler.CreateNotificationChannelForUserHandler::handleRequest"
+            }
+        },
+        "getNotificationChannelsForUser": {
+            "name": "GetNotificationChannelsForUserStack",
+            "lambda": {
+                "name": "GetNotificationChannelsForUser",
+                "jarPath": "../service/build/libs/getNotificationChannelsForUser-lambda-1.0-SNAPSHOT.jar",
+                "handler": "com.osrs.handler.GetNotificationChannelsForUserHandler::handleRequest"
+            }
+        },
+        "createGoalFromGoalCreationRequestEvent": {
+            "name": "CreateGoalFromGoalCreationRequestEventStack",
+            "lambda": {
+                "name": "CreateGoalFromGoalCreationRequestEvent",
+                "jarPath": "../service/build/libs/createGoalFromGoalCreationRequestEvent-lambda-1.0-SNAPSHOT.jar",
+                "handler": "com.osrs.handler.CreateGoalFromGoalCreationEventHandler::handleRequest"
+            }
+        },
+        "goalEventBus": {
+            "name": "GoalEventBusStack"
+        },
+        "lambdaTester": {
+            "name": "LambdaTesterStack"
+        },
+        "apiGateway": {
+            "name": "ApiGatewayStack"
+        }
+    }
+}
