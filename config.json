@@ -31,7 +31,7 @@
             "name": "AddCharacterToUserStack",
             "lambda": {
                 "name": "AddCharacterToUser",
-                "jarPath": "../service/build/libs/addCharacterToUser-lambda-1.0-SNAPSHOT.jar",
+                "jarPath": "../characterService/build/libs/addCharacterToUser-lambda-1.0-SNAPSHOT.jar",
                 "handler": "com.osrsGoalTracker.character.handler.AddCharacterToUserHandler::handleRequest"
             }
         },
@@ -39,7 +39,7 @@
             "name": "GetCharactersForUserStack",
             "lambda": {
                 "name": "GetCharactersForUser",
-                "jarPath": "../service/build/libs/getCharactersForUser-lambda-1.0-SNAPSHOT.jar",
+                "jarPath": "../characterService/build/libs/getCharactersForUser-lambda-1.0-SNAPSHOT.jar",
                 "handler": "com.osrsGoalTracker.character.handler.GetCharactersForUserHandler::handleRequest"
             }
         },
