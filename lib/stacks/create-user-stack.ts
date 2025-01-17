@@ -32,12 +32,12 @@ export class CreateUserStack extends cdk.Stack {
             timeout: cdk.Duration.seconds(30),
             functionName: `${stackConfig.lambda.name}-${stage}`,
             environment: {
-                TABLE_NAME: props.goalTrackerTableStack.goalTrackerTable.tableName,
+                USER_TABLE_NAME: props.goalTrackerTableStack.goalTrackerTable.tableName,
                 STAGE: stage
             }
         });
 
         // Grant DynamoDB permissions
-        props.goalTrackerTableStack.goalTrackerTable.grantWriteData(this.createUserFunction);
+        props.goalTrackerTableStack.goalTrackerTable.grantReadWriteData(this.createUserFunction);
     }
 }

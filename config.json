@@ -16,7 +16,7 @@
             "lambda": {
                 "name": "CreateUser",
                 "jarPath": "../service/build/libs/createUser-lambda-1.0-SNAPSHOT.jar",
-                "handler": "com.osrs.handler.CreateUserHandler::handleRequest"
+                "handler": "com.osrsGoalTracker.user.handler.CreateUserHandler::handleRequest"
             }
         },
         "getUser": {
@@ -24,7 +24,7 @@
             "lambda": {
                 "name": "GetUser",
                 "jarPath": "../service/build/libs/getUser-lambda-1.0-SNAPSHOT.jar",
-                "handler": "com.osrs.handler.GetUserHandler::handleRequest"
+                "handler": "com.osrsGoalTracker.user.handler.GetUserHandler::handleRequest"
             }
         },
         "addCharacterToUser": {
@@ -32,7 +32,7 @@
             "lambda": {
                 "name": "AddCharacterToUser",
                 "jarPath": "../service/build/libs/addCharacterToUser-lambda-1.0-SNAPSHOT.jar",
-                "handler": "com.osrs.handler.AddCharacterToUserHandler::handleRequest"
+                "handler": "com.osrsGoalTracker.character.handler.AddCharacterToUserHandler::handleRequest"
             }
         },
         "getCharactersForUser": {
@@ -40,7 +40,7 @@
             "lambda": {
                 "name": "GetCharactersForUser",
                 "jarPath": "../service/build/libs/getCharactersForUser-lambda-1.0-SNAPSHOT.jar",
-                "handler": "com.osrs.handler.GetCharactersForUserHandler::handleRequest"
+                "handler": "com.osrsGoalTracker.character.handler.GetCharactersForUserHandler::handleRequest"
             }
         },
         "createNotificationChannelForUser": {
@@ -48,7 +48,7 @@
             "lambda": {
                 "name": "CreateNotificationChannelForUser",
                 "jarPath": "../service/build/libs/createNotificationChannelForUser-lambda-1.0-SNAPSHOT.jar",
-                "handler": "com.osrs.handler.CreateNotificationChannelForUserHandler::handleRequest"
+                "handler": "com.osrsGoalTracker.notificationChannel.handler.CreateNotificationChannelForUserHandler::handleRequest"
             }
         },
         "getNotificationChannelsForUser": {
@@ -56,7 +56,7 @@
             "lambda": {
                 "name": "GetNotificationChannelsForUser",
                 "jarPath": "../service/build/libs/getNotificationChannelsForUser-lambda-1.0-SNAPSHOT.jar",
-                "handler": "com.osrs.handler.GetNotificationChannelsForUserHandler::handleRequest"
+                "handler": "com.osrsGoalTracker.notificationChannel.handler.GetNotificationChannelsForUserHandler::handleRequest"
             }
         },
         "createGoalFromGoalCreationRequestEvent": {
@@ -64,7 +64,7 @@
             "lambda": {
                 "name": "CreateGoalFromGoalCreationRequestEvent",
                 "jarPath": "../service/build/libs/createGoalFromGoalCreationRequestEvent-lambda-1.0-SNAPSHOT.jar",
-                "handler": "com.osrs.handler.CreateGoalFromGoalCreationEventHandler::handleRequest"
+                "handler": "com.osrsGoalTracker.goal.handler.CreateGoalFromGoalCreationEventHandler::handleRequest"
             }
         },
         "goalEventBus": {

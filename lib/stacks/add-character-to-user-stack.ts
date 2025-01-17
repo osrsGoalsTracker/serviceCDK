@@ -32,7 +32,7 @@ export class AddCharacterToUserStack extends cdk.Stack {
             timeout: cdk.Duration.seconds(30),
             functionName: `${stackConfig.lambda.name}-${stage}`,
             environment: {
-                TABLE_NAME: props.goalTrackerTableStack.goalTrackerTable.tableName,
+                CHARACTER_TABLE_NAME: props.goalTrackerTableStack.goalTrackerTable.tableName,
                 STAGE: stage
             }
         });

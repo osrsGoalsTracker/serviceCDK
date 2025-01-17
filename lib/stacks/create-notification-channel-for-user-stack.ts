@@ -32,7 +32,7 @@ export class CreateNotificationChannelForUserStack extends cdk.Stack {
             timeout: cdk.Duration.seconds(30),
             functionName: `${stackConfig.lambda.name}-${stage}`,
             environment: {
-                TABLE_NAME: props.goalTrackerTableStack.goalTrackerTable.tableName,
+                NOTIFICATION_CHANNEL_TABLE_NAME: props.goalTrackerTableStack.goalTrackerTable.tableName,
                 STAGE: stage
             }
         });

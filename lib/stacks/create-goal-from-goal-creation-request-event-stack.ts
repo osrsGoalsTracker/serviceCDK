@@ -33,7 +33,7 @@ export class CreateGoalFromGoalCreationRequestEventStack extends cdk.Stack {
             timeout: cdk.Duration.seconds(30),
             functionName: `${stackConfig.lambda.name}-${stage}`,
             environment: {
-                TABLE_NAME: props.goalTrackerTable.tableName,
+                GOAL_TRACKER_TABLE_NAME: props.goalTrackerTable.tableName,
                 STAGE: stage
             }
         });

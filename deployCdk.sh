@@ -73,8 +73,6 @@ list_stacks() {
 if [ -z "$1" ]; then
     echo "Usage: $0 <stack-name>"
     list_stacks
-    echo -e "\nOr use 'cdk list' to see all stacks:"
-    cdk list --context stage="$STAGE" --context account="$AWS_ACCOUNT" --profile "$PROFILE_TO_USE"
     exit 1
 fi
 
