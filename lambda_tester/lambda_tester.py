@@ -221,6 +221,79 @@ def execute_hiscores_chain(stage: str) -> List[Dict[str, Any]]:
     log("Completed hiscores chain test")
     return results
 
+def execute_goal_chain(stage: str, user_id: str, character_name: str) -> List[Dict[str, Any]]:
+    """Execute goal creation test."""
+    log("Starting goal creation test...")
+    results = []
+
+    # Create a goal using direct lambda invocation
+    goal_creation_event = {
+        'version': '0',
+        'id': 'test-event-id',
+        'detail-type': 'Goal Creation Request',
+        'source': 'osrs.goals',
+        'account': '123456789012',
+        'time': '2024-03-20T15:00:00Z',
+        'region': 'us-east-1',
+        'detail': {
+            'userId': user_id,
+            'characterName': character_name,
+            'targetAttribute': 'SMITHING',
+            'targetType': 'SKILL',
+            'targetValue': 99,
+            'currentValue': 1,
+            'targetDate': '2024-12-31T23:59:59Z',
+            'notificationChannelType': 'DISCORD',
+            'frequency': 'WEEKLY'
+        }
+    }
+
+    # Note: For this lambda, we pass the event directly without API Gateway wrapping
+    create_goal_result = invoke_lambda_direct('CreateGoalFromGoalCreationRequestEvent', goal_creation_event, stage)
+    results.append(create_goal_result)
+
+    log("Completed goal creation test")
+    return results
+
+def invoke_lambda_direct(function_name: str, event: dict, stage: str) -> dict:
+    """Invoke a Lambda function directly without API Gateway wrapping and return its response."""
+    full_function_name = f"{function_name}-{stage}"
+
+    log(f"Starting test: {function_name}")
+    try:
+        response = lambda_client.invoke(
+            FunctionName=full_function_name,
+            InvocationType='RequestResponse',
+            Payload=json.dumps(event)
+        )
+
+        response_payload = json.loads(response['Payload'].read().decode())
+        
+        # Check if the response is an error
+        if isinstance(response_payload, dict) and 'errorMessage' in response_payload:
+            log(f"Test failed: {function_name}")
+            log(f"Error details: {response_payload['errorMessage']}")
+            return {
+                'function': function_name,
+                'status': 'FAIL',
+                'error': response_payload['errorMessage']
+            }
+        
+        log(f"Test passed: {function_name}")
+        return {
+            'function': function_name,
+            'status': 'PASS',
+            'response': response_payload
+        }
+
+    except Exception as e:
+        log(f"Test error: {function_name} ({str(e)})")
+        return {
+            'function': function_name,
+            'status': 'ERROR',
+            'error': str(e)
+        }
+
 def run_tests(stage: str = None) -> dict:
     """Run all tests and return results. If stage is None, use environment variable."""
     if stage is None:
@@ -239,8 +312,24 @@ def run_tests(stage: str = None) -> dict:
         hiscores_chain = executor.submit(execute_hiscores_chain, stage)
 
         # Gather results
-        results.extend(user_chain.result())
+        user_results = user_chain.result()
+        results.extend(user_results)
         results.extend(hiscores_chain.result())
+
+        # Extract user_id and character_name from user chain results
+        user_id = None
+        character_name = None
+        for result in user_results:
+            if result['function'] == 'CreateUser' and result['status'] == 'PASS':
+                response_body = json.loads(result['response'].get('body', '{}'))
+                user_id = response_body.get('userId')
+            elif result['function'] == 'AddCharacterToUser' and result['status'] == 'PASS':
+                character_name = 'characterN'  # This matches the name used in execute_character_chain
+
+        # If we have both user_id and character_name, execute goal chain
+        if user_id and character_name:
+            results.extend(execute_goal_chain(stage, user_id, character_name))
+
     log("Completed all parallel test chains")
 
     # Process results into a cleaner format

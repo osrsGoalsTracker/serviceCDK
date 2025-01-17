@@ -64,7 +64,7 @@
             "lambda": {
                 "name": "CreateGoalFromGoalCreationRequestEvent",
                 "jarPath": "../service/build/libs/createGoalFromGoalCreationRequestEvent-lambda-1.0-SNAPSHOT.jar",
-                "handler": "com.osrsGoalTracker.goal.handler.CreateGoalFromGoalCreationEventHandler::handleRequest"
+                "handler": "com.osrsGoalTracker.goal.handler.CreateGoalFromGoalCreationRequestEventHandler::handleRequest"
             }
         },
         "goalEventBus": {
