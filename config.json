@@ -15,7 +15,7 @@
             "name": "CreateUserStack",
             "lambda": {
                 "name": "CreateUser",
-                "jarPath": "../service/build/libs/createUser-lambda-1.0-SNAPSHOT.jar",
+                "jarPath": "../userService/build/libs/createUser-lambda-1.0-SNAPSHOT.jar",
                 "handler": "com.osrsGoalTracker.user.handler.CreateUserHandler::handleRequest"
             }
         },
@@ -23,7 +23,7 @@
             "name": "GetUserStack",
             "lambda": {
                 "name": "GetUser",
-                "jarPath": "../service/build/libs/getUser-lambda-1.0-SNAPSHOT.jar",
+                "jarPath": "../userService/build/libs/getUser-lambda-1.0-SNAPSHOT.jar",
                 "handler": "com.osrsGoalTracker.user.handler.GetUserHandler::handleRequest"
             }
         },
