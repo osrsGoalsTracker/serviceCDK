@@ -40,6 +40,7 @@ profile = os.environ.get('AWS_PROFILE') or (
 
 session = boto3.Session(profile_name=profile, region_name=region)
 lambda_client = session.client('lambda')
+dynamodb = session.resource('dynamodb', region_name='us-west-2')
 
 def create_api_gateway_event(test_case):
     """Create an API Gateway-like event for Lambda invocation."""
@@ -294,43 +295,85 @@ def invoke_lambda_direct(function_name: str, event: dict, stage: str) -> dict:
             'error': str(e)
         }
 
-def run_tests(stage: str = None) -> dict:
+def cleanup_test_data(table_name: str, user_id: str):
+    """Delete all items in the partition for a given user ID."""
+    if not table_name:
+        raise ValueError("DynamoDB table name must be provided")
+    
+    table = dynamodb.Table(table_name)
+    
+    # Query all items in the partition
+    response = table.query(
+        KeyConditionExpression='pk = :pk',
+        ExpressionAttributeValues={
+            ':pk': f"USER#{user_id}"
+        }
+    )
+    
+    # Delete all items found
+    with table.batch_writer() as batch:
+        for item in response['Items']:
+            batch.delete_item(
+                Key={
+                    'pk': item['pk'],
+                    'sk': item['sk']
+                }
+            )
+    
+    log(f"Cleaned up test data for user {user_id}")
+
+def run_tests(stage: str = None, retain_data: bool = False, table_name: str = None) -> dict:
     """Run all tests and return results. If stage is None, use environment variable."""
     if stage is None:
         stage = os.environ.get('STAGE', 'dev')
+    
+    if table_name is None:
+        table_name = os.environ.get('DYNAMODB_TABLE')
+    
+    if not table_name:
+        raise ValueError("DynamoDB table name must be provided either as an argument or DYNAMODB_TABLE environment variable")
     
     test_email = f"{uuid.uuid4()}@email.com"
     log(f"Starting all tests in stage: {stage}")
     log(f"Using test email: {test_email}")
     results = []
+    user_id = None
 
-    # Execute main chains concurrently
-    log("Starting parallel test chains...")
-    with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-        # Submit both main chains
-        user_chain = executor.submit(execute_user_chain, stage, test_email)
-        hiscores_chain = executor.submit(execute_hiscores_chain, stage)
+    try:
+        # Execute main chains concurrently
+        log("Starting parallel test chains...")
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+            # Submit both main chains
+            user_chain = executor.submit(execute_user_chain, stage, test_email)
+            hiscores_chain = executor.submit(execute_hiscores_chain, stage)
 
-        # Gather results
-        user_results = user_chain.result()
-        results.extend(user_results)
-        results.extend(hiscores_chain.result())
+            # Gather results
+            user_results = user_chain.result()
+            results.extend(user_results)
+            results.extend(hiscores_chain.result())
 
-        # Extract user_id and character_name from user chain results
-        user_id = None
-        character_name = None
-        for result in user_results:
-            if result['function'] == 'CreateUser' and result['status'] == 'PASS':
-                response_body = json.loads(result['response'].get('body', '{}'))
-                user_id = response_body.get('userId')
-            elif result['function'] == 'AddCharacterToUser' and result['status'] == 'PASS':
-                character_name = 'characterN'  # This matches the name used in execute_character_chain
+            # Extract user_id and character_name from user chain results
+            character_name = None
+            for result in user_results:
+                if result['function'] == 'CreateUser' and result['status'] == 'PASS':
+                    response_body = json.loads(result['response'].get('body', '{}'))
+                    user_id = response_body.get('userId')
+                elif result['function'] == 'AddCharacterToUser' and result['status'] == 'PASS':
+                    character_name = 'characterN'  # This matches the name used in execute_character_chain
 
-        # If we have both user_id and character_name, execute goal chain
-        if user_id and character_name:
-            results.extend(execute_goal_chain(stage, user_id, character_name))
+            # If we have both user_id and character_name, execute goal chain
+            if user_id and character_name:
+                results.extend(execute_goal_chain(stage, user_id, character_name))
 
-    log("Completed all parallel test chains")
+        log("Completed all parallel test chains")
+
+    finally:
+        # Clean up test data unless retain_data is True
+        if user_id and not retain_data:
+            try:
+                cleanup_test_data(table_name, user_id)
+            except Exception as e:
+                log(f"Warning: Failed to clean up test data: {str(e)}")
 
     # Process results into a cleaner format
     passed_tests = [r['function'] for r in results if r['status'] == 'PASS']
@@ -354,9 +397,20 @@ def run_tests(stage: str = None) -> dict:
 
 def handler(event, context):
     """AWS Lambda handler."""
-    return run_tests()
+    retain_data = event.get('retain_data', False)
+    table_name = event.get('table_name')
+    if not table_name:
+        raise ValueError("table_name must be provided in the event")
+    return run_tests(retain_data=retain_data, table_name=table_name)
 
 if __name__ == '__main__':
     """Allow running the script locally."""
-    results = run_tests()
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='Run OSRS Goal Tracker tests')
+    parser.add_argument('--retain-data', action='store_true', help='Retain test data after completion')
+    parser.add_argument('--table-name', required=True, help='DynamoDB table name (required)')
+    args = parser.parse_args()
+    
+    results = run_tests(retain_data=args.retain_data, table_name=args.table_name)
     print(json.dumps(results, indent=2)) 
