@@ -47,7 +47,7 @@
             "name": "CreateNotificationChannelForUserStack",
             "lambda": {
                 "name": "CreateNotificationChannelForUser",
-                "jarPath": "../service/build/libs/createNotificationChannelForUser-lambda-1.0-SNAPSHOT.jar",
+                "jarPath": "../notificationChannelService/build/libs/createNotificationChannelForUser-lambda-1.0-SNAPSHOT.jar",
                 "handler": "com.osrsGoalTracker.notificationChannel.handler.CreateNotificationChannelForUserHandler::handleRequest"
             }
         },
@@ -55,7 +55,7 @@
             "name": "GetNotificationChannelsForUserStack",
             "lambda": {
                 "name": "GetNotificationChannelsForUser",
-                "jarPath": "../service/build/libs/getNotificationChannelsForUser-lambda-1.0-SNAPSHOT.jar",
+                "jarPath": "../notificationChannelService/build/libs/getNotificationChannelsForUser-lambda-1.0-SNAPSHOT.jar",
                 "handler": "com.osrsGoalTracker.notificationChannel.handler.GetNotificationChannelsForUserHandler::handleRequest"
             }
         },
