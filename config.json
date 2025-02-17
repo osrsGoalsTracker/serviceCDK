@@ -7,7 +7,7 @@
             "name": "GetCharacterHiscoresStack",
             "lambda": {
                 "name": "GetCharacterHiscores",
-                "jarPath": "../service/build/libs/getCharacterHiscores-lambda-1.0-SNAPSHOT.jar",
+                "jarPath": "../hiscoreService/build/libs/getCharacterHiscores-lambda-1.0-SNAPSHOT.jar",
                 "handler": "com.osrsGoalTracker.hiscore.handler.GetCharacterHiscoresHandler::handleRequest"
             }
         },
