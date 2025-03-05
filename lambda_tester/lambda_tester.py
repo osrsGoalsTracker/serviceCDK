@@ -256,6 +256,33 @@ def execute_goal_chain(stage: str, user_id: str, character_name: str) -> List[Di
     log("Completed goal creation test")
     return results
 
+def execute_goal_creation_request_producer_test(stage: str) -> List[Dict[str, Any]]:
+    """Execute goal creation request producer test independently."""
+    log("Starting goal creation request producer test...")
+    
+    # Test data for the GoalCreationRequestEventProducer lambda
+    test_data = {
+        'pathParameters': {
+            'userId': 'test-user-id',
+            'name': 'test-character'
+        },
+        'body': json.dumps({
+            'targetAttribute': 'WOODCUTTING',
+            'targetType': 'SKILL',
+            'targetValue': 99,
+            'currentValue': 1,
+            'targetDate': '2024-12-31T23:59:59Z',
+            'notificationChannelType': 'EMAIL',
+            'frequency': 'DAILY'
+        })
+    }
+    
+    # Invoke the lambda with API Gateway-like event
+    result = invoke_lambda('GoalCreationRequestEventProducer', test_data, stage)
+    
+    log("Completed goal creation request producer test")
+    return [result]
+
 def invoke_lambda_direct(function_name: str, event: dict, stage: str) -> dict:
     """Invoke a Lambda function directly without API Gateway wrapping and return its response."""
     full_function_name = f"{function_name}-{stage}"
@@ -342,15 +369,17 @@ def run_tests(stage: str = None, retain_data: bool = False, table_name: str = No
     try:
         # Execute main chains concurrently
         log("Starting parallel test chains...")
-        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-            # Submit both main chains
+        with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
+            # Submit all main chains
             user_chain = executor.submit(execute_user_chain, stage, test_email)
             hiscores_chain = executor.submit(execute_hiscores_chain, stage)
+            goal_creation_request_producer_chain = executor.submit(execute_goal_creation_request_producer_test, stage)
 
             # Gather results
             user_results = user_chain.result()
             results.extend(user_results)
             results.extend(hiscores_chain.result())
+            results.extend(goal_creation_request_producer_chain.result())
 
             # Extract user_id and character_name from user chain results
             character_name = None

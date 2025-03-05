@@ -65,6 +65,7 @@ list_stacks() {
     echo "  - $GET_NOTIFICATION_CHANNELS_FOR_USER_STACK"
     echo "  - $GOAL_EVENT_BUS_STACK"
     echo "  - $CREATE_GOAL_FROM_EVENT_STACK"
+    echo "  - $GOAL_CREATION_REQUEST_EVENT_PRODUCER_STACK"
     echo "  - $LAMBDA_TESTER_STACK"
     echo "  - $API_GATEWAY_STACK"
 }

@@ -67,6 +67,14 @@
                 "handler": "com.osrsGoalTracker.goal.handler.CreateGoalFromGoalCreationRequestEventHandler::handleRequest"
             }
         },
+        "goalCreationRequestEventProducer": {
+            "name": "GoalCreationRequestEventProducerStack",
+            "lambda": {
+                "name": "GoalCreationRequestEventProducer",
+                "jarPath": "../orchestrationService/build/libs/GoalCreationRequestEventProducerHandler-lambda-1.0-SNAPSHOT.jar",
+                "handler": "com.osrsGoalTracker.orchestration.handler.GoalCreationRequestEventProducerHandler::handleRequest"
+            }
+        },
         "goalEventBus": {
             "name": "GoalEventBusStack"
         },

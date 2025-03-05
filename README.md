@@ -80,6 +80,7 @@ Stack Dependencies:
 - `CreateUserStack` - Depends on GoalTrackerTableStack
 - `GetUserStack` - Depends on GoalTrackerTableStack
 - `CreateGoalFromEventStack` - Depends on GoalEventBusStack and GoalTrackerTableStack
+- `GoalCreationRequestEventProducerStack` - Depends on GoalEventBusStack
 - `ApiGatewayStack` - Depends on all Lambda stacks
 - `LambdaTesterStack` - Depends on all Lambda stacks
 
@@ -116,6 +117,13 @@ Processes GoalCreationEvents from the EventBus and creates goals in the DynamoDB
 
 **Input:** EventBridge event with GoalCreationEvent detail
 **Output:** None (writes to DynamoDB)
+
+### GoalCreationRequestEventProducer
+
+Processes API requests to create goals and publishes GoalCreationEvents to the EventBus.
+
+**Input:** API Gateway event with path parameters (userId, name) and request body
+**Output:** API Gateway response with 200 status code
 
 ## Lambda Tester
 
@@ -167,6 +175,21 @@ The tester includes test cases for each Lambda function:
     'GetNotificationChannelsForUser': {
         'pathParameters': {
             'userId': 'test-user-id'
+        }
+    },
+    'GoalCreationRequestEventProducer': {
+        'pathParameters': {
+            'userId': 'test-user-id',
+            'name': 'test-character'
+        },
+        'body': {
+            'targetAttribute': 'WOODCUTTING',
+            'targetType': 'SKILL',
+            'targetValue': 99,
+            'currentValue': 1,
+            'targetDate': '2024-12-31T23:59:59Z',
+            'notificationChannelType': 'EMAIL',
+            'frequency': 'DAILY'
         }
     }
 }
@@ -354,6 +377,35 @@ Retrieves all notification channels for a user.
 }
 ```
 
+### POST /users/{userId}/characters/{name}/goal
+
+Creates a goal for a character.
+
+**Parameters:**
+- `userId` (path parameter) - The user's unique identifier
+- `name` (path parameter) - RuneScape username
+
+**Request Body:**
+```json
+{
+    "targetAttribute": "string",
+    "targetType": "string",
+    "targetValue": number,
+    "currentValue": number,
+    "targetDate": "string (ISO-8601)",
+    "notificationChannelType": "string",
+    "frequency": "string"
+}
+```
+
+**Response:**
+```json
+{
+    "success": true,
+    "message": "Goal creation request submitted"
+}
+```
+
 ## Useful Commands
 
 - `npm run build` - Compile TypeScript
@@ -364,7 +416,7 @@ Retrieves all notification channels for a user.
 - `cdk synth --context stage=dev --context account=<account-id>` - Emit CloudFormation template
 - `./updateDevLambda.sh <FunctionName>` - Update Lambda function code in dev environment
   - Example: `./updateDevLambda.sh CreateUser`
-  - Available functions: CreateUser, GetUser, GetPlayerStats, AddCharacterToUser, GetCharactersForUser, CreateNotificationChannelForUser, GetNotificationChannelsForUser, LambdaTester
+  - Available functions: CreateUser, GetUser, GetPlayerStats, AddCharacterToUser, GetCharactersForUser, CreateNotificationChannelForUser, GetNotificationChannelsForUser, GoalCreationRequestEventProducer, LambdaTester
   - Automatically uses the correct jar file from ../service/build/libs/
 - `./updateAllDevLambdas.sh` - Update all Lambda functions at once
 
@@ -385,6 +437,8 @@ The infrastructure includes:
     - Add player to user (with DynamoDB read/write access)
   - Player statistics endpoints
   - Notification channel endpoints
+  - Goal management endpoints:
+    - Create goal for character (with EventBus write access)
 - Lambda functions for business logic:
   - CreateUser function for user registration (with DynamoDB write access)
     - Name format: `CreateUser-${stage}`
@@ -398,6 +452,10 @@ The infrastructure includes:
     - Name format: `CreateNotificationChannelForUser-${stage}`
   - GetNotificationChannelsForUser function for retrieving notification channels (with DynamoDB read access)
     - Name format: `GetNotificationChannelsForUser-${stage}`
+  - GoalCreationRequestEventProducer function for creating goal creation requests (with EventBus write access)
+    - Name format: `GoalCreationRequestEventProducer-${stage}`
+  - CreateGoalFromGoalCreationRequestEvent function for processing goal creation events (with DynamoDB write access)
+    - Name format: `CreateGoalFromGoalCreationRequestEvent-${stage}`
   - LambdaTester function for testing all other Lambda functions
     - Name format: `LambdaTester-${stage}`
   - All functions use simple stage suffix (e.g., `-dev` or `-prod`)
@@ -414,6 +472,10 @@ The infrastructure includes:
     - Pay-per-request billing
     - Point-in-time recovery enabled
     - Used by CreateUser and GetUser functions
+- EventBridge event bus:
+  - GoalEventBus for event-driven communication
+    - Bus name format: `goal-event-bus-${stage}`
+    - Used for goal creation workflow
 - Appropriate IAM roles and permissions
 
 ## Contributing

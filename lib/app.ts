@@ -11,6 +11,7 @@ import { GetNotificationChannelsForUserStack } from './stacks/get-notification-c
 import { LambdaTesterStack } from './stacks/lambda-tester-stack';
 import { GoalEventBusStack } from './stacks/goal-event-bus-stack';
 import { CreateGoalFromGoalCreationRequestEventStack } from './stacks/create-goal-from-goal-creation-request-event-stack';
+import { GoalCreationRequestEventProducerStack } from './stacks/goal-creation-request-event-producer-stack';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 
 const app = new cdk.App();
@@ -153,6 +154,18 @@ const createGoalFromGoalCreationRequestEventStack = new CreateGoalFromGoalCreati
     }
 });
 
+// Create GoalCreationRequestEventProducer Lambda stack (depends on EventBus)
+const goalCreationRequestEventProducerStack = new GoalCreationRequestEventProducerStack(app, 'GoalCreationRequestEventProducerStack', {
+    env,
+    description: `OSRS Goals GoalCreationRequestEventProducer Lambda - ${stage}`,
+    stackName: `GoalCreationRequestEventProducer-${stage}`,
+    eventBus: goalEventBusStack.eventBus,
+    tags: {
+        Stage: stage,
+        Project: 'OSRS Goals'
+    }
+});
+
 // Create Lambda Tester stack (depends on all other Lambdas)
 const lambdaTesterStack = new LambdaTesterStack(app, 'LambdaTesterStack', {
     env,
@@ -166,7 +179,8 @@ const lambdaTesterStack = new LambdaTesterStack(app, 'LambdaTesterStack', {
         getCharactersForUserStack.getCharactersForUserFunction,
         createNotificationChannelForUserStack.createNotificationChannelForUserFunction,
         getNotificationChannelsForUserStack.getNotificationChannelsForUserFunction,
-        createGoalFromGoalCreationRequestEventStack.createGoalLambda
+        createGoalFromGoalCreationRequestEventStack.createGoalLambda,
+        goalCreationRequestEventProducerStack.goalCreationRequestEventProducerFunction
     ],
     tags: {
         Stage: stage,
@@ -246,6 +260,12 @@ new ApiGatewayStack(app, 'ApiGatewayStack', {
             resourcePath: ['users', '{userId}', 'notification-channels'],
             lambda: getNotificationChannelsForUserStack.getNotificationChannelsForUserFunction,
             operationName: 'GetNotificationChannelsForUser'
+        },
+        {
+            httpMethod: 'POST',
+            resourcePath: ['users', '{userId}', 'characters', '{name}', 'goal'],
+            lambda: goalCreationRequestEventProducerStack.goalCreationRequestEventProducerFunction,
+            operationName: 'GoalCreationRequestEventProducer'
         }
     ],
     tags: {
