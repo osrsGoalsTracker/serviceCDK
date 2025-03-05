@@ -41,14 +41,6 @@ Here is how to add a new lambda:
    });
 ```
 
-4. Add the Lambda to the LambdaTesterStack in lib/app.ts:
-```
-   lambdaFunctions: [
-       // ... existing lambdas ...
-       newLambdaStack.newLambdaFunction
-   ]
-```
-
 5. Add appropriate test case in lambda_tester/lambda_tester.py:
 - Add to an existing chain or create a new one
 - Include appropriate test data

@@ -9,7 +9,6 @@ FUNCTIONS=(
     "GetCharactersForUser"
     "CreateNotificationChannelForUser"
     "GetNotificationChannelsForUser"
-    "LambdaTester"
     "CreateGoalFromGoalCreationRequestEvent"
     "GoalCreationRequestEventProducer"
 )

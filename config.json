@@ -71,15 +71,12 @@
             "name": "GoalCreationRequestEventProducerStack",
             "lambda": {
                 "name": "GoalCreationRequestEventProducer",
-                "jarPath": "../orchestrationService/build/libs/GoalCreationRequestEventProducerHandler-lambda-1.0-SNAPSHOT.jar",
-                "handler": "com.osrsGoalTracker.orchestration.handler.GoalCreationRequestEventProducerHandler::handleRequest"
+                "jarPath": "../orchestrationService/build/libs/goalCreationRequestEventProducer-lambda-1.0-SNAPSHOT.jar",
+                "handler": "com.osrs.handler.GoalCreationRequestEventProducerHandler::handleRequest"
             }
         },
         "goalEventBus": {
             "name": "GoalEventBusStack"
-        },
-        "lambdaTester": {
-            "name": "LambdaTesterStack"
         },
         "apiGateway": {
             "name": "ApiGatewayStack"

@@ -82,7 +82,6 @@ Stack Dependencies:
 - `CreateGoalFromEventStack` - Depends on GoalEventBusStack and GoalTrackerTableStack
 - `GoalCreationRequestEventProducerStack` - Depends on GoalEventBusStack
 - `ApiGatewayStack` - Depends on all Lambda stacks
-- `LambdaTesterStack` - Depends on all Lambda stacks
 
 ## Event Bus
 
@@ -124,116 +123,6 @@ Processes API requests to create goals and publishes GoalCreationEvents to the E
 
 **Input:** API Gateway event with path parameters (userId, name) and request body
 **Output:** API Gateway response with 200 status code
-
-## Lambda Tester
-
-The Lambda Tester is a Python-based Lambda function that tests all other Lambda functions in the application. It simulates API Gateway requests and verifies that each Lambda returns a 200 status code.
-
-### Test Cases
-
-The tester includes test cases for each Lambda function:
-
-```python
-{
-    'CreateUser': {
-        'body': {
-            'email': 'test@example.com'
-        }
-    },
-    'GetUser': {
-        'pathParameters': {
-            'userId': 'test-user-id'
-        }
-    },
-    'GetCharacterHiscores': {
-        'pathParameters': {
-            'name': 'test-character'
-        }
-    },
-    'AddCharacterToUser': {
-        'pathParameters': {
-            'userId': 'test-user-id'
-        },
-        'body': {
-            'name': 'test-character'
-        }
-    },
-    'GetCharactersForUser': {
-        'pathParameters': {
-            'userId': 'test-user-id'
-        }
-    },
-    'CreateNotificationChannelForUser': {
-        'pathParameters': {
-            'userId': 'test-user-id'
-        },
-        'body': {
-            'type': 'EMAIL',
-            'destination': 'test@example.com'
-        }
-    },
-    'GetNotificationChannelsForUser': {
-        'pathParameters': {
-            'userId': 'test-user-id'
-        }
-    },
-    'GoalCreationRequestEventProducer': {
-        'pathParameters': {
-            'userId': 'test-user-id',
-            'name': 'test-character'
-        },
-        'body': {
-            'targetAttribute': 'WOODCUTTING',
-            'targetType': 'SKILL',
-            'targetValue': 99,
-            'currentValue': 1,
-            'targetDate': '2024-12-31T23:59:59Z',
-            'notificationChannelType': 'EMAIL',
-            'frequency': 'DAILY'
-        }
-    }
-}
-```
-
-### Running Tests
-
-To run the Lambda tester:
-
-1. Deploy the tester:
-```bash
-./updateDevLambda.sh LambdaTester
-```
-
-2. Invoke the tester through AWS Console or CLI:
-```bash
-aws lambda invoke \
-    --function-name LambdaTester-dev \
-    --payload '{}' \
-    response.json
-```
-
-3. Check the results in `response.json`:
-```json
-{
-    "statusCode": 200,
-    "body": {
-        "results": [
-            {
-                "function": "CreateUser",
-                "status": "PASS",
-                "statusCode": 200
-            },
-            // ... more results ...
-        ],
-        "summary": {
-            "total": 7,
-            "passed": 7,
-            "failed": 0,
-            "errors": 0
-        }
-    }
-}
-```
 
 ## API Endpoints
 
@@ -416,7 +305,7 @@ Creates a goal for a character.
 - `cdk synth --context stage=dev --context account=<account-id>` - Emit CloudFormation template
 - `./updateDevLambda.sh <FunctionName>` - Update Lambda function code in dev environment
   - Example: `./updateDevLambda.sh CreateUser`
-  - Available functions: CreateUser, GetUser, GetPlayerStats, AddCharacterToUser, GetCharactersForUser, CreateNotificationChannelForUser, GetNotificationChannelsForUser, GoalCreationRequestEventProducer, LambdaTester
+  - Available functions: CreateUser, GetUser, GetPlayerStats, AddCharacterToUser, GetCharactersForUser, CreateNotificationChannelForUser, GetNotificationChannelsForUser, GoalCreationRequestEventProducer
   - Automatically uses the correct jar file from ../service/build/libs/
 - `./updateAllDevLambdas.sh` - Update all Lambda functions at once
 
@@ -456,8 +345,6 @@ The infrastructure includes:
     - Name format: `GoalCreationRequestEventProducer-${stage}`
   - CreateGoalFromGoalCreationRequestEvent function for processing goal creation events (with DynamoDB write access)
     - Name format: `CreateGoalFromGoalCreationRequestEvent-${stage}`
-  - LambdaTester function for testing all other Lambda functions
-    - Name format: `LambdaTester-${stage}`
   - All functions use simple stage suffix (e.g., `-dev` or `-prod`)
 - DynamoDB tables:
   - GoalTrackerTable (pk/sk) for storing player goals and progress tracking

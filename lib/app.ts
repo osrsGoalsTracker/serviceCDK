@@ -8,7 +8,6 @@ import { AddCharacterToUserStack } from './stacks/add-character-to-user-stack';
 import { GetCharactersForUserStack } from './stacks/get-characters-for-user-stack';
 import { CreateNotificationChannelForUserStack } from './stacks/create-notification-channel-for-user-stack';
 import { GetNotificationChannelsForUserStack } from './stacks/get-notification-channels-for-user-stack';
-import { LambdaTesterStack } from './stacks/lambda-tester-stack';
 import { GoalEventBusStack } from './stacks/goal-event-bus-stack';
 import { CreateGoalFromGoalCreationRequestEventStack } from './stacks/create-goal-from-goal-creation-request-event-stack';
 import { GoalCreationRequestEventProducerStack } from './stacks/goal-creation-request-event-producer-stack';
@@ -160,28 +159,6 @@ const goalCreationRequestEventProducerStack = new GoalCreationRequestEventProduc
     description: `OSRS Goals GoalCreationRequestEventProducer Lambda - ${stage}`,
     stackName: `GoalCreationRequestEventProducer-${stage}`,
     eventBus: goalEventBusStack.eventBus,
-    tags: {
-        Stage: stage,
-        Project: 'OSRS Goals'
-    }
-});
-
-// Create Lambda Tester stack (depends on all other Lambdas)
-const lambdaTesterStack = new LambdaTesterStack(app, 'LambdaTesterStack', {
-    env,
-    description: `OSRS Goals Lambda Tester - ${stage}`,
-    stackName: `LambdaTester-${stage}`,
-    lambdaFunctions: [
-        createUserStack.createUserFunction,
-        getUserStack.getUserFunction,
-        getCharacterHiscoresStack.getCharacterHiscoresFunction,
-        addCharacterToUserStack.addCharacterToUserFunction,
-        getCharactersForUserStack.getCharactersForUserFunction,
-        createNotificationChannelForUserStack.createNotificationChannelForUserFunction,
-        getNotificationChannelsForUserStack.getNotificationChannelsForUserFunction,
-        createGoalFromGoalCreationRequestEventStack.createGoalLambda,
-        goalCreationRequestEventProducerStack.goalCreationRequestEventProducerFunction
-    ],
     tags: {
         Stage: stage,
         Project: 'OSRS Goals'
