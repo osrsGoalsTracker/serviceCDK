@@ -2,7 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as events from 'aws-cdk-lib/aws-events';
 import { Construct } from 'constructs';
-
+import { GOAL_CREATION_REQUEST_EVENT_DETAIL_TYPE } from '../constants';
 interface GoalCreationRequestEventProducerStackProps extends cdk.StackProps {
     eventBus: events.EventBus;
 }
@@ -30,7 +30,8 @@ export class GoalCreationRequestEventProducerStack extends cdk.Stack {
             functionName: `${stackConfig.lambda.name}-${stage}`,
             environment: {
                 EVENT_BUS_NAME: props.eventBus.eventBusName,
-                STAGE: stage
+                STAGE: stage,
+                GOAL_CREATION_REQUEST_EVENT_DETAIL_TYPE: GOAL_CREATION_REQUEST_EVENT_DETAIL_TYPE,
             }
         });
 

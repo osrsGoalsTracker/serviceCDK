@@ -72,7 +72,7 @@
             "lambda": {
                 "name": "GoalCreationRequestEventProducer",
                 "jarPath": "../orchestrationService/build/libs/goalCreationRequestEventProducer-lambda-1.0-SNAPSHOT.jar",
-                "handler": "com.osrs.handler.GoalCreationRequestEventProducerHandler::handleRequest"
+                "handler": "com.osrsGoalTracker.orchestration.handler.GoalCreationRequestEventProducerHandler::handleRequest"
             }
         },
         "goalEventBus": {

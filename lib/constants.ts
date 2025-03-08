@@ -1,0 +1,1 @@
+export const GOAL_CREATION_REQUEST_EVENT_DETAIL_TYPE = 'GoalCreationRequestEvent';

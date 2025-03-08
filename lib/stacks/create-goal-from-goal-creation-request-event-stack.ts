@@ -5,7 +5,7 @@ import * as targets from 'aws-cdk-lib/aws-events-targets';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
 import config from '../config';
-
+import { GOAL_CREATION_REQUEST_EVENT_DETAIL_TYPE } from '../constants';
 interface CreateGoalFromGoalCreationRequestEventStackProps extends cdk.StackProps {
     eventBus: events.EventBus;
     goalTrackerTable: dynamodb.Table;
@@ -41,13 +41,13 @@ export class CreateGoalFromGoalCreationRequestEventStack extends cdk.Stack {
         // Grant DynamoDB permissions
         props.goalTrackerTable.grantWriteData(this.createGoalLambda);
 
-        // Add the Lambda as a target for the GoalCreationEvent rule
-        const rule = new events.Rule(this, 'GoalCreationEventToLambdaRule', {
+        // Add the Lambda as a target for the GoalCreationRequestEvent rule
+        new events.Rule(this, 'GoalCreationRequestEventToLambdaRule', {
             eventBus: props.eventBus,
-            ruleName: `goal-creation-to-lambda-${stage}`,
-            description: 'Forward goal creation events to create goal lambda',
+            ruleName: `goal-creation-request-event-to-lambda-${stage}`,
+            description: 'Forward goal creation request events to create goal lambda',
             eventPattern: {
-                detailType: ['GoalCreationEvent'],
+                detailType: [GOAL_CREATION_REQUEST_EVENT_DETAIL_TYPE],
             },
             targets: [new targets.LambdaFunction(this.createGoalLambda)],
         });
