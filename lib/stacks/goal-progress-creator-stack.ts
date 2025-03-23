@@ -2,11 +2,15 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as events from 'aws-cdk-lib/aws-events';
+import * as targets from 'aws-cdk-lib/aws-events-targets';
 import { GoalTrackerTableStack } from './goal-tracker-table-stack';
+import { GOAL_PROGRESS_UPDATE_EVENT_DETAIL_TYPE } from '../constants';
 const config = require('../../config.json');
 
 interface GoalProgressCreatorStackProps extends cdk.StackProps {
   goalTrackerTableStack: GoalTrackerTableStack;
+  eventBus: events.EventBus;
 }
 
 export class GoalProgressCreatorStack extends cdk.Stack {
@@ -23,7 +27,7 @@ export class GoalProgressCreatorStack extends cdk.Stack {
       handler: config.stacks.goalProgressCreator.lambda.handler,
       environment: {
         STAGE: stage,
-        TABLE_NAME: props.goalTrackerTableStack.goalTrackerTable.tableName
+        GOAL_TRACKER_TABLE_NAME: props.goalTrackerTableStack.goalTrackerTable.tableName,
       },
       memorySize: 512,
       timeout: cdk.Duration.seconds(30)
@@ -44,5 +48,16 @@ export class GoalProgressCreatorStack extends cdk.Stack {
         resources: ['*']
       })
     );
+
+    // Add the Lambda as a target for GoalProgressUpdateEvent rule
+    new events.Rule(this, 'GoalProgressUpdateEventToLambdaRule', {
+      eventBus: props.eventBus,
+      ruleName: `goal-progress-update-event-to-lambda-${stage}`,
+      description: 'Forward goal progress update events to create progress lambda',
+      eventPattern: {
+        detailType: [GOAL_PROGRESS_UPDATE_EVENT_DETAIL_TYPE],
+      },
+      targets: [new targets.LambdaFunction(this.handler)],
+    });
   }
 } 

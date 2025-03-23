@@ -166,12 +166,13 @@ const goalCreationRequestEventProducerStack = new GoalCreationRequestEventProduc
     }
 });
 
-// Create GoalProgressCreator Lambda stack (depends on GoalTracker table)
+// Create GoalProgressCreator Lambda stack (depends on GoalTracker table and EventBus)
 const goalProgressCreatorStack = new GoalProgressCreatorStack(app, 'GoalProgressCreatorStack', {
     env,
     description: `OSRS Goals GoalProgressCreator Lambda - ${stage}`,
     stackName: `GoalProgressCreator-${stage}`,
     goalTrackerTableStack,
+    eventBus: goalEventBusStack.eventBus,
     tags: {
         Stage: stage,
         Project: 'OSRS Goals'

@@ -109,6 +109,22 @@ Event published when a goal is requested to be created.
 }
 ```
 
+### GoalProgressUpdateEvent
+
+Event published when progress is made on a goal.
+
+**Event Detail Type:** `GoalProgressUpdateEvent`
+
+**Event Detail:**
+```json
+{
+    "userId": "string",
+    "characterName": "string",
+    "goalId": "string",
+    "progressValue": "number"
+}
+```
+
 ## Lambda Functions
 
 ### GoalProgressCreator
