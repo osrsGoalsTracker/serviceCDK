@@ -81,6 +81,7 @@ Stack Dependencies:
 - `GetUserStack` - Depends on GoalTrackerTableStack
 - `CreateGoalFromEventStack` - Depends on GoalEventBusStack and GoalTrackerTableStack
 - `GoalCreationRequestEventProducerStack` - Depends on GoalEventBusStack
+- `GoalProgressCreatorStack` - Depends on GoalTrackerTableStack
 - `ApiGatewayStack` - Depends on all Lambda stacks
 
 ## Event Bus
@@ -109,6 +110,13 @@ Event published when a goal is requested to be created.
 ```
 
 ## Lambda Functions
+
+### GoalProgressCreator
+
+Creates progress entries for user goals in the DynamoDB table.
+
+**Input:** API Gateway event with goal progress details
+**Output:** API Gateway response with 200 status code
 
 ### CreateGoalFromEvent
 

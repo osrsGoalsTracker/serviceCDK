@@ -66,6 +66,7 @@ list_stacks() {
     echo "  - $GOAL_EVENT_BUS_STACK"
     echo "  - $CREATE_GOAL_FROM_EVENT_STACK"
     echo "  - $GOAL_CREATION_REQUEST_EVENT_PRODUCER_STACK"
+    echo "  - $GOAL_PROGRESS_CREATOR_STACK"
     echo "  - $API_GATEWAY_STACK"
 }
 

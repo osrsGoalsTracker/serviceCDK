@@ -11,6 +11,7 @@ FUNCTIONS=(
     "GetNotificationChannelsForUser"
     "CreateGoalFromGoalCreationRequestEvent"
     "GoalCreationRequestEventProducer"
+    "GoalProgressCreator"
 )
 
 # Track failures

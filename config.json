@@ -80,6 +80,14 @@
         },
         "apiGateway": {
             "name": "ApiGatewayStack"
+        },
+        "goalProgressCreator": {
+            "name": "GoalProgressCreatorStack",
+            "lambda": {
+                "name": "GoalProgressCreator",
+                "jarPath": "../goalService/build/libs/createGoalProgressItem-lambda-1.0-SNAPSHOT.jar",
+                "handler": "com.osrsGoalTracker.goal.handler.CreateGoalProgressItemHandler::handleRequest"
+            }
         }
     }
 }

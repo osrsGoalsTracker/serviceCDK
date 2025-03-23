@@ -11,6 +11,7 @@ import { GetNotificationChannelsForUserStack } from './stacks/get-notification-c
 import { GoalEventBusStack } from './stacks/goal-event-bus-stack';
 import { CreateGoalFromGoalCreationRequestEventStack } from './stacks/create-goal-from-goal-creation-request-event-stack';
 import { GoalCreationRequestEventProducerStack } from './stacks/goal-creation-request-event-producer-stack';
+import { GoalProgressCreatorStack } from './stacks/goal-progress-creator-stack';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 
 const app = new cdk.App();
@@ -159,6 +160,18 @@ const goalCreationRequestEventProducerStack = new GoalCreationRequestEventProduc
     description: `OSRS Goals GoalCreationRequestEventProducer Lambda - ${stage}`,
     stackName: `GoalCreationRequestEventProducer-${stage}`,
     eventBus: goalEventBusStack.eventBus,
+    tags: {
+        Stage: stage,
+        Project: 'OSRS Goals'
+    }
+});
+
+// Create GoalProgressCreator Lambda stack (depends on GoalTracker table)
+const goalProgressCreatorStack = new GoalProgressCreatorStack(app, 'GoalProgressCreatorStack', {
+    env,
+    description: `OSRS Goals GoalProgressCreator Lambda - ${stage}`,
+    stackName: `GoalProgressCreator-${stage}`,
+    goalTrackerTableStack,
     tags: {
         Stage: stage,
         Project: 'OSRS Goals'
